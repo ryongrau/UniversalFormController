@@ -1,0 +1,27 @@
+{
+  	
+	"manifest_version": 2,
+	"name": "UniversalFormController",
+	"version": "0.1",
+	"description": "Built On Version 3.3 of the Download Node Killer Form Filler",
+	"web_accessible_resources": ["jquery-1.10.2.min.map","purl.js"], 
+	"browser_action": {
+		"default_icon": "icon.png",
+		"default_popup": "popup.html"
+	},
+	"background": {
+		"scripts": ["background.js"]
+	  },
+	"content_scripts": [
+		{
+			"matches": ["https://cms.doe.gov/*","https://stage.cms.doe.gov/*","https://dev.cms.doe.gov/*","https://demo.cms.doe.gov/*"],
+			"js": ["jquery-1.10.2.min.js","purl.js","contentscript.js"]
+		}
+	],
+	"permissions": [
+		"storage","tabs","background"
+	],
+	"icons": {
+		"19": "icon.png"
+	}
+}

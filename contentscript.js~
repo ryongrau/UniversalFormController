@@ -15,31 +15,29 @@ $( document ).ready(function() {
     console.log( "UFC at the ready:");
 	console.log( "UFC referring URL:" + document.referrer );
 	for (var valuePair in $.url().param()){
-		try {	var UFCFieldType = valuePair.substring(0,7);
-			var UFCFieldID = valuePair.substring(8,99);
-			console.log('UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
-			switch(UFCFieldType) {
+		try {
+			console.log('UFC FieldType:' + valuePair.substring(0,6) + '   :UFC Field:' + valuePair.substring(7,99) + '   :Value:' + $.url().param(valuePair));
+			switch(valuePair.substring(0,6)) {
 				// timestamp takes text, just get the format right
 				case 'ufc-fld':
-					$('#'+ UFCFieldID).val($.url().param(valuePair));
+					$('#'+ valuePair.substring(7,99)).val($.url().param(valuePair));
 				break;
 
 				
 				case 'ufc-chk':
 					if($.url().param(valuePair)==='TRUE'){
-						$('#'+ UFCFieldID).prop('checked',true);}
-					else {	$('#'+ UFCFieldID).prop('checked',false);}
+						$('#'+ valuePair.substring(7,99)).prop('checked',true);}
+					else {	$('#'+ valuePair.substring(7,99)).prop('checked',false);}
 				break;
 
 				case 'ufc-sel':
-					$('#'+ UFCFieldID + ' option[value="' + $.url().param(valuePair) + '"]').prop('selected',true);
+					$('#'+ valuePair.substring(7,99) option[value="' + $.url().param(valuePair) + '"]').prop('selected',true);
 				break;
 				
 				// multiselect: important to ADD only-!
 				case 'ufc-msl':
 					for (var toAddToSelections in $.url().param(valuePair).split(',')){
-						console.log('toAddToSelections '+ $.url().param(valuePair).split(',')[toAddToSelections]);
-						$('#'+ UFCFieldID + ' option[value="' +  $.url().param(valuePair).split(',')[toAddToSelections] + '"]').prop('selected','selected');
+						$('#'+ valuePair.substring(7,99) option[value="' + toAddToSelections + '"]').prop('selected','selected');
 					}
 				break;
 				
@@ -50,7 +48,7 @@ $( document ).ready(function() {
 					$('#cke_contents_edit-body-und-0-value body').html(mySummary);
 					$('iframe').contents().find('body').html(mySummary);
 				break;
-				/*				
+								
 				//files
 				case 'ufc-fil':
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
@@ -58,10 +56,8 @@ $( document ).ready(function() {
 					$('body').append(htmlstr);
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
 				break;
-				*/
 				
 			}
-			
 		} catch(err) {
 			console.log(err);
 		}

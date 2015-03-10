@@ -20,7 +20,7 @@ $( document ).ready(function() {
 			console.log('UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
 			switch(UFCFieldType) {
 				// timestamp takes text, just get the format right
-				case 'ufc-fld':
+				case 'ufc-txt':
 					$('#'+ UFCFieldID).val($.url().param(valuePair));
 				break;
 

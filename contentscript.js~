@@ -38,13 +38,11 @@ $( document ).ready(function() {
 				// multiselect: important to ADD only-!
 				case 'ufc-msl':
 					for (var toAddToSelections in $.url().param(valuePair).split(',')){
-						console.log('toAddToSelections '+ $.url().param(valuePair).split(',')[toAddToSelections]);
+						console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + $.url().param(valuePair).split(',')[toAddToSelections]);
 						$('#'+ UFCFieldID + ' option[value="' +  $.url().param(valuePair).split(',')[toAddToSelections] + '"]').prop('selected','selected');
 					}
 				break;
-				
-				
-				
+								
 				//Body Text: hidden iFrame Need some thought down here
 				case 'ufc-bod'://wow.. this will need some study later
 					$('#cke_contents_edit-body-und-0-value body').html($.url().param(valuePair));
@@ -59,7 +57,8 @@ $( document ).ready(function() {
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
 				break;
 				*/
-				
+				default:
+					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
 			}
 			
 		} catch(err) {

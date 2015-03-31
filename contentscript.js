@@ -12,7 +12,7 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 }
 
 $( document ).ready(function() {
-    console.log( "UFC at the ready:");
+    console.log( "UFC at the ready: HREF::" + $(this).attr('href')););
 	console.log( "UFC referring URL:" + document.referrer );
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
@@ -68,7 +68,7 @@ $( document ).ready(function() {
 	if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
 		$(':regex(href,workflow)').first().each(function(){
 			console.log('link:' + $(this).attr('href'));
-			window.location.replace('https://cms.doe.gov' + $(this).attr('href') + '?dnkffautopublish=workflow1')
+			window.location.replace('https://cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
 		});
 	} 
 	if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){

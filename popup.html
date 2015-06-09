@@ -4,9 +4,11 @@
     <title>Make-a-menuItem</title>
 
 <style>
-         </style>
-
-   
+	body{
+		min-width:600px;
+	}
+</style>
+  
 <!--
       - JavaScript and HTML must be in separate files: see our Content Security
       - Policy documentation[1] for details and explanation.
@@ -20,13 +22,19 @@
   
 </head>  
 <body>
-
-Input: Title :Tab: Link :Tab: Enabled(yes/no) :Tab: Parent node/id
-
-
-<br />
-<input id='quickFormText' type='text' style='width:600px'>
-<input id='fillDatForm' type='submit' value='Fill That Form'>
+	<p>This plugin allows forms to be filled via the querystring, in the format [UFC field type]-[field ID] = [value];<br />
+		Values need to be in an URL-encoded format.<>
+		<strong>Example:</strong> ?ufc-txt-edit-title=My Article Title<br />
+		<strong>Current Fields:</strong><br />
+		<strong>ufc-txt</strong>   Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
+		<strong>ufc-chk</strong>   Check Box [TRUE/FALSE] <br />
+		<strong>ufc-sel</strong>   Select<br />
+		<strong>ufc-msl</strong>   Multiselect<br />
+		<strong>ufc-bod</strong>   Body Text<br />
+		<strong>ufc-fll</strong>   [download page] opens first file to media library; filters on value<br />
+		<strong>ufc-mdc</strong>   [media browser list]UFC-Media Check- check the number of items expected against number of media found, closes tab if match found<br />
+	</p>
+	<input id='getDemFields' type='submit' value='Get Fillable Fields'>
 </body>
 </html>
 

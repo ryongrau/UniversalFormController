@@ -12,7 +12,8 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 }
 
 $( document ).ready(function() {
-    console.log( "UFC at the ready:");
+    //console.log( "UFC at the ready: HREF::" + $(this).attr('href'));
+    console.log( "UFC at the ready: URL::" + document.URL);
 	console.log( "UFC referring URL:" + document.referrer );
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
@@ -48,15 +49,38 @@ $( document ).ready(function() {
 					$('#cke_contents_edit-body-und-0-value body').html($.url().param(valuePair));
 					$('iframe').contents().find('body').html($.url().param(valuePair));
 				break;
-				/*				
+								
 				//files
-				case 'ufc-fil':
+				case 'ufc-fll':// FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
-					var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;">' + $.url().param('dnkffURL') + '</div>';
-					$('body').append(htmlstr);
+					//***this doesn't need the filename to access so easily :)
+					//var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;">' + $.url().param('ufc-fll') + '</div>';
+					//$('body').append(htmlstr);
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
+					$('#mediaBrowser').load(function(){
+						console.log('#mediaBrowser Loaded');
+						//$('iframe').contents().find('#media-browser-page').load(function(){
+							//console.log('#media-browser-page loaded');
+							$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
+							$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
+							$('iframe').contents().find('a.exposed-button.button').parent().trigger('click');
+							//$('iframe').contents().find('a.exposed-button.button').html('wasuuup');
+						//});
+					});
+					
 				break;
-				*/
+				
+				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found, right?
+					var myMatches = $('#media-browser-library-list tr').length;
+					//alert(myMatches + ' - ' + $.url().param(valuePair));
+					if(myMatches==$.url().param(valuePair)){
+						chrome.runtime.sendMessage('close me',function(response){
+							console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+						});
+					}
+					
+				break;
+				
 				default:
 					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
 			}
@@ -65,10 +89,13 @@ $( document ).ready(function() {
 			console.log(err);
 		}
 	}
+
+	
+	
 	if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
 		$(':regex(href,workflow)').first().each(function(){
 			console.log('link:' + $(this).attr('href'));
-			window.location.replace('https://cms.doe.gov' + $(this).attr('href') + '?dnkffautopublish=workflow1')
+			window.location.replace('https://cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
 		});
 	} 
 	if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){

@@ -108,20 +108,25 @@ $( document ).ready(function() {
 
 });
 
-//this is onkly needed if you're needing a hook from the popup.. leaving in for reference :)
-/*
+//this is only needed if you're needing a hook from the popup.. leaving in for reference :)
+
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                request.greeting);
-	populateFields(request.greeting)
-	
-    if (request.greeting == "hello")
-      sendResponse({farewell: "goodbye"});
-  });
-}
-*/
+	function(request, sender, sendResponse) {
+		console.log('I heard something: ' + request.greeting);
+		if(request.greeting === "getDemFields"){
+			var myFields = 'ufc-bod'
+			$('#page').find('input[type=text], select, input[type=checkbox]').each(
+				function(){
+					myFields = myFields + '\t' + $(this).attr('id')
+				}
+			)
+			console.log('I found these fields: ' + myFields);
+		}
+
+	}
+)
+
+
 
 
 

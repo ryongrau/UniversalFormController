@@ -1,7 +1,7 @@
 $( document ).ready(function() {
 
 	$('#getDemFields').click(function(){
-		var myText = "getDemFields clicked";
+		//var myText = "getDemFields clicked";
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 			chrome.tabs.sendMessage(
 				tabs[0].id,

@@ -112,9 +112,16 @@ $( document ).ready(function() {
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		console.log(sender.tab ? "from a content script:" + sender.tab.url : request.greeting);
 		console.log('I heard something: ' + request.greeting);
-		
+		if(request.greeting === "getDemFields"){
+			var myFields = 'ufc-bod'
+			$('#page').find('input[type=text], select, input[type=checkbox]').each(
+				function(){
+					myFields = myFields + '\t' + $(this).attr('id')
+				}
+			)
+			console.log('I found these fields: ' + myFields);
+		}
 
 	}
 )

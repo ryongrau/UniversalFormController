@@ -12,9 +12,9 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 }
 
 $( document ).ready(function() {
-    //console.log( "UFC at the ready: HREF::" + $(this).attr('href'));
-    console.log( "UFC at the ready: URL::" + document.URL);
-	console.log( "UFC referring URL:" + document.referrer );
+    //console.log( "UFC at the ready: HREF::" + $(this).attr('href')); //redult: undefined
+    console.log( "UFC document.URL:  " + document.URL);//your current page
+	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
 			var UFCFieldID = valuePair.substring(8,99);
@@ -91,11 +91,46 @@ $( document ).ready(function() {
 	}
 
 	
-	
+	if ($.url().param("ufc-submit-cls") ==='true'){
+		console.log('1.) click Submit');
+		$('#edit-submit').trigger('click');
+	}
+
+	if (document.referrer.indexOf('ufc-submit-cls=true')>-1){
+		console.log('4.) time to go away');
+		chrome.runtime.sendMessage('close me',function(response){
+			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+		});
+	}
+
+	if ($.url().param("ufc-sav-pub-cls") ==='true'){
+		console.log('1.) click save');
+		$('#edit-submit').trigger('click');
+		//$('#edit-submit').click();
+	}
+
+	if (document.referrer.indexOf('ufc-sav-pub-cls=true')>-1){
+		console.log('2.) view>>immediate publish::  '+ document.URL.replace('/view','/workflow/immediate%20publish'));
+		window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
+	}
+
+	if ($.url().param("ufc-sav-pub-cls") ==='pub'){
+		console.log('3) click update state');
+		$('#edit-submit').trigger('click');
+	}
+
+	if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
+		console.log('4.) time to go away');
+		chrome.runtime.sendMessage('close me',function(response){
+			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+		});
+	}
+
+	/*
 	if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
 		$(':regex(href,workflow)').first().each(function(){
 			console.log('link:' + $(this).attr('href'));
-			window.location.replace('https://cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
+			window.location.replace('https://stage.cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
 		});
 	} 
 	if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){
@@ -105,6 +140,7 @@ $( document ).ready(function() {
 		});
 		
 	} 
+	*/
 
 });
 

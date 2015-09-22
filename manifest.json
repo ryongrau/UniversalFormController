@@ -14,7 +14,7 @@
 	  },
 	"content_scripts": [
 		{
-			"matches": ["https://cms.doe.gov/*","https://stage.cms.doe.gov/*","https://dev.cms.doe.gov/*","https://demo.cms.doe.gov/*"],
+			"matches": ["https://cms.doe.gov/*","https://stage.cms.doe.gov/*","https://dev.cms.doe.gov/*","https://demo.cms.doe.gov/*","https://*doe.gov*"],
 			"js": ["jquery-1.10.2.min.js","purl.js","contentscript.js"]
 		}
 	],

@@ -12,16 +12,17 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 }
 
 $( document ).ready(function() {
-    //console.log( "UFC at the ready: HREF::" + $(this).attr('href')); //redult: undefined
+    console.log( "UFC 1.21.18 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
     console.log( "UFC document.URL:  " + document.URL);//your current page
 	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
-			var UFCFieldID = valuePair.substring(8,99);
-			console.log('UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
+			var UFCFieldID = valuePair.substring(8,valuePair.length);
+			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
 			switch(UFCFieldType) {
 				// timestamp takes text, just get the format right
 				case 'ufc-txt':
+					console.log('>>>>>ufc-txt:'+UFCFieldID+' >>> '+$.url().param(valuePair));
 					$('#'+ UFCFieldID).val($.url().param(valuePair));
 				break;
 
@@ -46,43 +47,114 @@ $( document ).ready(function() {
 								
 				//Body Text: hidden iFrame Need some thought down here
 				case 'ufc-bod'://wow.. this will need some study later
-					$('#cke_contents_edit-body-und-0-value body').html($.url().param(valuePair));
-					$('iframe').contents().find('body').html($.url().param(valuePair));
+					$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));
+					//$('iframe').ready(function(){
+							console.log('>>>>>ufc-bod:'+$.url().param(valuePair));
+							$('iframe').contents().find('body').html($.url().param(valuePair));
+					//	});
+					//$('iframe').contents().find('body').html($.url().param(valuePair));
 				break;
 								
 				//files
-				case 'ufc-fll':// FILE FROM FILE LIBRARY-- 
+				case 'ufc-fml':// FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
 					//***this doesn't need the filename to access so easily :)
 					//var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;">' + $.url().param('ufc-fll') + '</div>';
 					//$('body').append(htmlstr);
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
 					$('#mediaBrowser').load(function(){
-						console.log('#mediaBrowser Loaded');
-						//$('iframe').contents().find('#media-browser-page').load(function(){
-							//console.log('#media-browser-page loaded');
-							$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
-							$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
-							$('iframe').contents().find('a.exposed-button.button').parent().trigger('click');
-							//$('iframe').contents().find('a.exposed-button.button').html('wasuuup');
-						//});
+						console.log('#mediaBrowser Loaded plus media-browser-tabset tabs selecting 1');
+						//var tabs = $('#media-browser-tabset').tabs();
+						//tabs.tabs('select','#media-tab-library');
+						//tabs.tabs(active:'#media-tab-library');
+						//try
+						//console.log('parent tab: '+$('iframe').contents().find('a[href=#media-tab-library]').parent().parent().html());
+
+						$('iframe').contents().find('a[href=#media-tab-library]').trigger('select');
+						$('iframe').contents().find('a[href=#media-tab-library]').parent().trigger('select');
+						$('iframe').contents().find('a[href=#media-tab-library]').parent().parent().trigger('select');
+						//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
+
+						//end try
+
+						
+						
+						$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
+						$('iframe').contents().find('#scrollbox').load(function(){
+							console.log('#scrollbox loaded-2');
+							
+							$('iframe').contents().find('a.exposed-button.button').trigger('click');
+							$('iframe').contents().find('a.exposed-button.button').html("still need to click");
+						});
 					});
 					
 				break;
+
+				case 'ufc-fup'://srsly, wtf-ok file upload
+					console.log('--ufc-fup-- ');
+					$('html, body').animate({ 
+						scrollTop: $(document).height()-$(window).height()}, 
+						000
+					);
+					
+					var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;"><p>' + $.url().param(valuePair) + '</p></div>';
+					$('body').append(htmlstr);
+
+					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
+					$('#mediaBrowser').load(function(){
+						//console.log('#mediaBrowser loaded-1');
+						//$('iframe').contents().find('#media-browser-page').load(function(){
+							//console.log('#media-browser-iframe loaded-2');
+							//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
+							//$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
+							//$('iframe').contents().find('#edit-upload').trigger('click');
+							//$('iframe').contents().find('a.exposed-button.button').html('wasuuup');
+						//});
+					});
+				break;	
 				
 				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found, right?
 					var myMatches = $('#media-browser-library-list tr').length;
 					//alert(myMatches + ' - ' + $.url().param(valuePair));
 					if(myMatches==$.url().param(valuePair)){
-						chrome.runtime.sendMessage('close me',function(response){
+						chrome.runtime.sendMessage('killTab',function(response){
 							console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
 					}
 					
 				break;
 				
+				case 'ufc-mdu'://UFC-Media check Usage on /media/#####
+					var myMatches = 0;
+					$('#content').find('h3 :contains(node)').each(function(){
+						console.log('ref by : '+$(this).parent().next().html() );
+						myMatches+=1;
+						chrome.runtime.sendMessage('refNode'+$(this).parent().next().html() );
+						//chrome.runtime.getBackgroundPage().find("#linkedNodeList").append('<tr><td>new</td><td>new</td></tr>');
+					})
+		/*
+					}
+					if ($.url().param(valuePair).split(',').length()>0){
+
+						window.open('https://cms.doe.gov/admin/media/ref/'+$.url().param(valuePair).split(',')[0]+'?ufc-mdu='+$.url().param(valuePair).substring(indexOf(',')));
+					}
+		
+					if(myMatches < 1){
+						chrome.runtime.sendMessage('killTab',function(response){
+							console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+						});
+					} else {
+						console.log('media is used, keeping tab open');
+					}
+*/
+				break;
+
+				case 'ufc-mrf'://check content referenced mt media (comma seperated IDs)
+				break;
+
 				default:
 					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
+				break;
 			}
 			
 		} catch(err) {
@@ -98,7 +170,7 @@ $( document ).ready(function() {
 
 	if (document.referrer.indexOf('ufc-submit-cls=true')>-1){
 		console.log('4.) time to go away');
-		chrome.runtime.sendMessage('close me',function(response){
+		chrome.runtime.sendMessage('killTab',function(response){
 			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 		});
 	}
@@ -121,7 +193,7 @@ $( document ).ready(function() {
 
 	if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
 		console.log('4.) time to go away');
-		chrome.runtime.sendMessage('close me',function(response){
+		chrome.runtime.sendMessage('killTab',function(response){
 			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 		});
 	}
@@ -135,7 +207,7 @@ $( document ).ready(function() {
 	} 
 	if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){
 
-		chrome.runtime.sendMessage('close me',function(response){
+		chrome.runtime.sendMessage('killTab',function(response){
 			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 		});
 		

@@ -1,11 +1,4 @@
 // closing tabs- can't be done ON the tabs, but rather on the background script. This runs all the time and listens to all calls from the extension across all tabs..
-alert('background.js');
-/*
-chrome.runtime.onMessage.addListener(function(message,sender,sendResponse){
-		alert('background.js-chrome.runtime.onMessage');
-
-	});
-*/
 
 chrome.runtime.onMessage.addListener(
 	function(message,sender,sendResponse){
@@ -13,14 +6,14 @@ chrome.runtime.onMessage.addListener(
 			var messageType = message.substring(0,7);
 			var messageContent = message.substring(8,message.length);
 			
-			alert('background.js-chrome.runtime.onMessage:  ' + messageType + '     : UFC messageContent:' + messageContent);
+			//alert('background.js-chrome.runtime.onMessage:  ' + messageType + '     : UFC messageContent:' + messageContent);
 			switch(messageType) {
 				case "killTab":
 					chrome.tabs.remove(sender.tab.id);
 				break;
 
 				case "refNode":
-					alert('refNode:  ' + messageType + '     : UFC messageContent:' + messageContent);
+					//alert('refNode:  ' + messageType + '     : UFC messageContent:' + messageContent);
 
 					//var myPage = chrome.extension.getBackgroundPage();
 					//alert(chrome.extension.getBackgroundPage().document.getElementById("linkedNodeList").innerHTML);
@@ -48,3 +41,5 @@ chrome.runtime.onMessage.addListener(
 		}
 		*/
 });
+
+

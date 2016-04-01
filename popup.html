@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Make-a-menuItem</title>
+    <title>Universal Form Controller</title>
 
 <style>
 	body{
@@ -22,44 +22,79 @@
   
 </head>  
 <body>
+	<h1>Universal Form Controller</h1>
 	<div id="tabs">
 		<ul>
 			<li><a href="#tabs-1">Options</a></li>
-			<li><a href="#tabs-2">Media Links</a></li>
+			<li><a href="#tabs-2">Nodes Referencing Media</a></li>
+			<li><a href="#tabs-3">Media Referenced by Node</a></li>
+			<li><a href="#tabs-4">Fillable Fields</a></li>
 		</ul>
 		<div id="tabs-1">
 			<p>This plugin allows forms to be filled via the querystring, in the format [UFC field type]-[field ID] = [value];<br />
 				Values need to be in an URL-encoded format.
 				<strong>Example:</strong> ?ufc-txt-edit-title=My Article Title<br />
-				<strong>Current Fields:</strong><br />
-				<strong>ufc-txt</strong>   Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
-				<strong>ufc-chk</strong>   Check Box [TRUE/FALSE] <br />
-				<strong>ufc-sel</strong>   Select<br />
-				<strong>ufc-msl</strong>   Multiselect- Only ADDS to selection, manual removal if wrong [comma delineated] <br />
-				<strong>ufc-bod</strong>   Body Text<br />
 				<br />
-				Drupal specific automation commands<br />
-				<strong>ufc-fml</strong>   File Media Library (Download Node): opens first file to media library; filters on value<br />
-				<strong>ufc-fup</strong>   File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
-				<strong>ufc-mdc</strong>   [media browser list]UFC-Media Check- check the number of items expected against number of media found, closes tab if match found<br />
-				<strong>THE FOLLOWING OCCUR AFTER ALL FIELDS are filled</strong><br />
-				<strong>ufc-sav-pub-cls</strong> [TRUE]save, publish, and close tab<br />
-				<strong>ufc-submit-cls</strong> [TRUE]click submit and close tab<br />
+				<strong>Current Fields:</strong><br />
+				<strong>ufc-txt</strong>   [url encoded string] Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
+				<strong>ufc-chk</strong>   [TRUE/FALSE] Check Box  <br />
+				<strong>ufc-sel</strong>   [ID] Select<br />
+				<strong>ufc-msl</strong>   [comma delineated IDs] Multiselect- Only ADDS to selection, manual removal if wrong  <br />
+				<strong>ufc-bod</strong>   [HTML string] For Drupal CKeditor Body Text<br />
+				<br />
+				<strong>Drupal specific administration/ automation commands:</strong><br />
+				<strong>ufc-fml</strong>   [Local Filepath] File Media Library (Download Node): opens first file to media library; filters on value<br />
+				<strong>ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
+				<strong>ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
+				<strong>ufc-dlf</strong> [TRUE] Populates UFC "Media Referenced By Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow.<br />
+				<strong>ufc-mrf</strong> [TRUE] Add node references in "Nodes referencing Media" tab.  Use on admin/media/ref/* <br/>
+				<br />
+				<strong>The following commands run only after other fields are filled:</strong><br />
+				<strong>ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
+				<strong>ufc-submit-cls</strong> [TRUE] Will: click submit and close tab<br />
 			</p>
 			<input id='getDemFields' type='submit' value='Get Fillable Fields' />  You'll have to see the results in the console.
 		</div>
+
 		<div id="tabs-2">
-			<table id="linkedNodeList">
+			<table id="nodeRefList">
 				<tr>
-					<th>mediaId</th>
-					<th>Usage</th>
+					<th>Media Id</th>
+					<th>Node Usage</th>
 				</tr>
 				<tr>
 					<td>test mediaId</td>
-					<td>test Usage</td>	
+					<td>test Node Usage</td>	
 				</tr>
 			</table>	
-			<input id='clearMediaList' type='submit' value='clearMediaList' /> 
+			<input id='clearNodeRefList' type='submit' value='clearNodeRefList' /> 
+		</div>
+
+		<div id="tabs-3">
+			<table id="linkedMediaList">
+				<tr>
+					<th>Node Id/ Revision</th>
+					<th>Related Media </th>
+				</tr>
+				<tr>
+					<td>test node/revision</td>
+					<td>test related Media</td>	
+				</tr>
+			</table>	
+			<input id='clearLinkedMediaList' type='submit' value='clearLinkedMediaList' /> 
+		</div>
+
+		<div id="tabs-4">
+			<table id="FieldList">
+				<tr>
+					<th>Field Id</th>
+					<th>Query String</th>
+				</tr>
+				<tr>
+					<td>test FieldId</td>
+					<td>test QueryString</td>	
+				</tr>
+			</table>	
 		</div>
 	</div>
 </body>

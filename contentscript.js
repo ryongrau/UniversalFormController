@@ -18,7 +18,7 @@ $( document ).ready(function() {
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
 			var UFCFieldID = valuePair.substring(8,valuePair.length);
-			//console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
+			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
 			switch(UFCFieldType) {
 				// timestamp takes text, just get the format right
 				case 'ufc-txt':
@@ -45,14 +45,13 @@ $( document ).ready(function() {
 					}
 				break;
 								
-				//Body Text: hidden iFrame Need some thought down here
-				case 'ufc-bod'://wow.. this will need some study later
-					$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));
-					//$('iframe').ready(function(){
-							//console.log('>>>>>ufc-bod:'+$.url().param(valuePair));
-							$('iframe').contents().find('body').html($.url().param(valuePair));
-					//	});
-					//$('iframe').contents().find('body').html($.url().param(valuePair));
+				//Body Text: hidden iFrame 
+				case 'ufc-bod':
+					$('#cke_2_contents').html($.url().param(valuePair));//update?
+					
+					//$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));//update: seems to be missing..?
+					$('iframe').contents().find('body').html($.url().param(valuePair));
+
 				break;
 								
 				//files
@@ -64,33 +63,23 @@ $( document ).ready(function() {
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
 					$('#mediaBrowser').load(function(){
 						//console.log('#mediaBrowser Loaded plus media-browser-tabset tabs selecting 1');
-						//var tabs = $('#media-browser-tabset').tabs();
-						//tabs.tabs('select','#media-tab-library');
-						//tabs.tabs(active:'#media-tab-library');
-						//try
 						//console.log('parent tab: '+$('iframe').contents().find('a[href=#media-tab-library]').parent().parent().html());
 
 						$('iframe').contents().find('a[href=#media-tab-library]').trigger('select');
 						$('iframe').contents().find('a[href=#media-tab-library]').parent().trigger('select');
 						$('iframe').contents().find('a[href=#media-tab-library]').parent().parent().trigger('select');
 						//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
-
 						//end try
-
-						
-						
 						$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
 						$('iframe').contents().find('#scrollbox').load(function(){
 							//console.log('#scrollbox loaded-2');
-							
 							$('iframe').contents().find('a.exposed-button.button').trigger('click');
 							$('iframe').contents().find('a.exposed-button.button').html("still need to click");
 						});
 					});
-					
 				break;
 
-				case 'ufc-fup'://srsly, wtf-ok file upload
+				case 'ufc-fup'://file upload
 					//console.log('--ufc-fup-- ');
 					$('html, body').animate({ 
 						scrollTop: $(document).height()-$(window).height()}, 
@@ -113,7 +102,7 @@ $( document ).ready(function() {
 					});
 				break;	
 				
-				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found, right?
+				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found
 					var myMatches = $('#media-browser-library-list tr').length;
 					//alert(myMatches + ' - ' + $.url().param(valuePair));
 					if(myMatches==$.url().param(valuePair)){
@@ -121,7 +110,6 @@ $( document ).ready(function() {
 							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
 					}
-					
 				break;
 				
 				case 'ufc-mrf'://LIST MEDIA REFERENCES IN ufc
@@ -131,39 +119,35 @@ $( document ).ready(function() {
 					var myLinkedMediaId = '';
 					//console.log('mediaID:'+window.location.pathname.split( '/' )[4]);
 					myLinkedMediaId = window.location.pathname.split( '/' )[4];
-					//myLinkedMediaId = myURL.substring(1,5);
 					//console.log('myLinkedMediaId:'+myLinkedMediaId);
-					var linkedNodeList='';
+					var nodeRefList='';
 					var myLinkAddition='';
 					$('#content').find('h3 :contains(node)').each(function(){
 						//console.log('ref by : '+$(this).parent().next().html() );
 						myMatches+=1;
 						myLinkedNode=encodeURI($(this).parent().next().html());
-						chrome.storage.local.get('linkedNodeList', function (result) {
-							//console.log('cs.js chrome.storage.local.getting(linkedNodeList)')
-							linkedNodeList = result.linkedNodeList;
-							//console.log('cs.js chrome.storage.local.got(linkedNodeList):'+linkedNodeList);
-					    
-							if(linkedNodeList===''){
+						chrome.storage.local.get('nodeRefList', function (result) {
+							//console.log('cs.js chrome.storage.local.getting(nodeRefList)')
+							nodeRefList = result.nodeRefList;
+							//console.log('cs.js chrome.storage.local.got(nodeRefList):'+nodeRefList);
+							if(nodeRefList===''){
 								myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'"}'
 							} else {
 								myLinkAddition=',{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'"}'
 							};
 
-							console.log('cs.js linkedNodeList:'+ linkedNodeList);
-							console.log('cs.js myLinkAddition:'+ myLinkAddition);
-							linkedNodeList = linkedNodeList + myLinkAddition
-							console.log('cs.js planning on setting this as linkedNodeList:'+ linkedNodeList);
-							chrome.storage.local.set({'linkedNodeList': linkedNodeList }, function() {
+							//console.log('cs.js nodeRefList:'+ nodeRefList);
+							//console.log('cs.js myLinkAddition:'+ myLinkAddition);
+							nodeRefList = nodeRefList + myLinkAddition
+							//console.log('cs.js planning on setting this as nodeRefList:'+ nodeRefList);
+							chrome.storage.local.set({'nodeRefList': nodeRefList }, function() {
 								// Notify that we saved.
-								console.log('cs storage.local.set({linkedNodeList:'+linkedNodeList);
+								console.log('cs storage.local.set({nodeRefList:'+nodeRefList);
 	        				});
         				});
 					})
-		/*
-					}
+					/*
 					if ($.url().param(valuePair).split(',').length()>0){
-
 						window.open('https://cms.doe.gov/admin/media/ref/'+$.url().param(valuePair).split(',')[0]+'?ufc-mdu='+$.url().param(valuePair).substring(indexOf(',')));
 					}
 		
@@ -174,10 +158,33 @@ $( document ).ready(function() {
 					} else {
 						//console.log('media is used, keeping tab open');
 					}
-*/
+					*/
 				break;
 
-				case 'ufc-mrf'://check content referenced mt media (comma seperated IDs)
+				case 'ufc-dlf':// find all associated files related to download revisions (use from )
+					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
+					var revisionCount =-1;
+					revisionCount = $('li :contains(Revisions)').length;					
+					if ($.url().param(valuePair)==='fillAndKill'){
+						listFiles();
+					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
+						console.log('relocating');
+						window.location.replace('https://'+document.domain+$('li :contains(Revisions)').attr('href')+'?ufc-dlf=redirected');
+					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] === 'revisions') {
+						//console.log('for each revision....');
+						//for each tr: first a link
+						$('.sticky-table').find('tr:gt(0)').find('a:first').each(function(){
+								var myRevision = 'https://'+document.domain+$(this).attr('href')
+								console.log('myRevision:'+myRevision);
+								window.open(myRevision+'?ufc-dlf=fillAndKill')
+								//listFiles(myRevision);
+
+						});
+					} else {
+						listFiles();
+					}
+					
+					
 				break;
 
 				default:
@@ -244,8 +251,38 @@ $( document ).ready(function() {
 
 });
 
-//this is only needed if you're needing a hook from the popup.. leaving in for reference :)
+function listFiles(myURL) {
+	console.log('function list files('+myURL+')');
+	var myMatches = 0;
+	var myLinkedNode = '';
+	myLinkedNode = window.location.pathname;
+	var myMediaLink = '';
+	var linkedMediaList='';
+	var myLinkAddition='';
+	$('.file').find('a').each(function(){
+		myMediaLink=encodeURI('<a href ="'+$(this).attr("href")+'">'+$(this).html()+'</a>');
+		//myMediaLink=encodeURI($(this));
+		//console.log('myLinkedNode'+myLinkedNode+'     mymediaLink   :   '+myMediaLink)
+		chrome.storage.local.get('linkedMediaList', function (result) {
+			linkedMediaList = result.linkedMediaList;
+			if(linkedMediaList===''){
+				myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaLink":"'+myMediaLink+'"}'
+			} else {
+				myLinkAddition=',{"NodeRef":"'+myLinkedNode+'","MediaLink":"'+myMediaLink+'"}'
+			};
+			linkedMediaList = linkedMediaList + myLinkAddition
+			chrome.storage.local.set({'linkedMediaList': linkedMediaList }, function() {
+				//console.log('cs storage.local.set({linkedMediaList:'+linkedMediaList);
+				if (myURL='killAndFill'){
+					console.log('myURL===killAndFill')
+					chrome.runtime.sendMessage('killTab',function(response){});
+				}
+			});
+		});
+	})
+}
 
+//this is only needed if you're needing a hook from the popup.. leaving in for reference :)
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		//console.log('I heard something: ' + request.greeting);

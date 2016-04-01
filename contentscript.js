@@ -47,10 +47,12 @@ $( document ).ready(function() {
 								
 				//Body Text: hidden iFrame 
 				case 'ufc-bod':
-					$('#cke_2_contents').html($.url().param(valuePair));//update?
-					
-					//$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));//update: seems to be missing..?
-					$('iframe').contents().find('body').html($.url().param(valuePair));
+
+					//$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));//v1: now this seems to be missing..?
+					//$('#edit-body-und-0-format--2').html($.url().param(valuePair));
+					$('iframe').load(function(){
+						$('iframe').contents().find('body').html($.url().param(valuePair));
+					});
 
 				break;
 								
@@ -282,18 +284,20 @@ function listFiles(myURL) {
 	})
 }
 
-//this is only needed if you're needing a hook from the popup.. leaving in for reference :)
+// a hook from the popup
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		//console.log('I heard something: ' + request.greeting);
+		console.log('I heard something: ' + request.greeting);
 		if(request.greeting === "getDemFields"){
-			var myFields = 'ufc-bod'
-			$('#page').find('input[type=text], select, input[type=checkbox]').each(
+			var myFields = 'I found these fields: '
+			$('#page').find('input, select').each(
 				function(){
-					myFields = myFields + '\t' + $(this).attr('id')
+					myFields = myFields + '\n' + $(this).attr('id') + '\t' + $(this).attr('type')
 				}
 			)
-			//console.log('I found these fields: ' + myFields);
+			console.log(myFields);
+		} else {
+			console.log('unknown request ' );
 		}
 
 	}

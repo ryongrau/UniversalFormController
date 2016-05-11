@@ -16,7 +16,12 @@ $( document ).ready(function() {
 		        linkedNodesJSON.nodeRefList[i].MediaID +
 		        "</td><td>" +
 		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeRef) +
-		        "</td></tr>";
+		        "</td><td>" +
+		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeURL) +
+		        "</td><td>" +
+		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeId) +
+		        "</td></tr>"
+		        ;
 			}
 			$('#nodeRefList').append(myRow);
 	    });
@@ -31,6 +36,8 @@ $( document ).ready(function() {
 			for(i = 0; i < linkedMediaListJSON.linkedMediaList.length; i++) {
 				myRow += "<tr><td>" +
 		        linkedMediaListJSON.linkedMediaList[i].NodeRef +
+		        "</td><td>" +
+		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaTitle) +
 		        "</td><td>" +
 		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaLink) +
 		        "</td></tr>";

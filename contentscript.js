@@ -119,34 +119,21 @@ $( document ).ready(function() {
 					var myMatches = 0;
 					var myLinkedNode = '';
 					var myLinkedMediaId = '';
-					//console.log('mediaID:'+window.location.pathname.split( '/' )[4]);
+					var myLinkedURL='';
+					var myLinkedNodeId = '';
 					myLinkedMediaId = window.location.pathname.split( '/' )[4];
 					//console.log('myLinkedMediaId:'+myLinkedMediaId);
-					var nodeRefList='';
 					var myLinkAddition='';
 					$('#content').find('h3 :contains(node)').each(function(){
 						//console.log('ref by : '+$(this).parent().next().html() );
 						myMatches+=1;
 						myLinkedNode=encodeURI($(this).parent().next().html());
-						chrome.storage.local.get('nodeRefList', function (result) {
-							//console.log('cs.js chrome.storage.local.getting(nodeRefList)')
-							nodeRefList = result.nodeRefList;
-							//console.log('cs.js chrome.storage.local.got(nodeRefList):'+nodeRefList);
-							if(nodeRefList===''){
-								myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'"}'
-							} else {
-								myLinkAddition=',{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'"}'
-							};
-
-							//console.log('cs.js nodeRefList:'+ nodeRefList);
-							//console.log('cs.js myLinkAddition:'+ myLinkAddition);
-							nodeRefList = nodeRefList + myLinkAddition
-							//console.log('cs.js planning on setting this as nodeRefList:'+ nodeRefList);
-							chrome.storage.local.set({'nodeRefList': nodeRefList }, function() {
-								// Notify that we saved.
-								console.log('cs storage.local.set({nodeRefList:'+nodeRefList);
-	        				});
-        				});
+						myLinkedNodeId=encodeURI($(this).parent().next().html().split('(')[$(this).parent().next().html().split('(').length-1]);
+						myLinkedNodeId=myLinkedNodeId.substring(7,(myLinkedNodeId.length-1));
+						myLinkedURL=encodeURI($(this).parent().next().find('a').attr('href'));
+						myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'","NodeId":"'+myLinkedNodeId+'","NodeURL":"'+myLinkedURL+'"}'
+        				console.log('updtMRF-'+myLinkAddition);
+        				chrome.runtime.sendMessage('updtMRF-'+myLinkAddition)
 					})
 					/*
 					if ($.url().param(valuePair).split(',').length()>0){
@@ -169,6 +156,7 @@ $( document ).ready(function() {
 					revisionCount = $('li :contains(Revisions)').length;					
 					if ($.url().param(valuePair)==='fillAndKill'){
 						listFiles();
+						chrome.runtime.sendMessage('killTab',function(response){});
 					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
 						console.log('relocating');
 						window.location.replace('https://'+document.domain+$('li :contains(Revisions)').attr('href')+'?ufc-dlf=redirected');
@@ -199,7 +187,12 @@ $( document ).ready(function() {
 		}
 	}
 
-	
+	if ($.url().param("killTab") ==='TRUE'){
+		chrome.runtime.sendMessage('killTab',function(response){
+			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+		});
+	}
+
 	if ($.url().param("ufc-submit-cls") ==='true'){
 		//console.log('1.) click Submit');
 		$('#edit-submit').trigger('click');
@@ -259,28 +252,14 @@ function listFiles(myURL) {
 	var myLinkedNode = '';
 	myLinkedNode = window.location.pathname;
 	var myMediaLink = '';
+	var myMediaTitle = '';
 	var linkedMediaList='';
 	var myLinkAddition='';
 	$('.file').find('a').each(function(){
-		myMediaLink=encodeURI('<a href ="'+$(this).attr("href")+'">'+$(this).html()+'</a>');
-		//myMediaLink=encodeURI($(this));
-		//console.log('myLinkedNode'+myLinkedNode+'     mymediaLink   :   '+myMediaLink)
-		chrome.storage.local.get('linkedMediaList', function (result) {
-			linkedMediaList = result.linkedMediaList;
-			if(linkedMediaList===''){
-				myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaLink":"'+myMediaLink+'"}'
-			} else {
-				myLinkAddition=',{"NodeRef":"'+myLinkedNode+'","MediaLink":"'+myMediaLink+'"}'
-			};
-			linkedMediaList = linkedMediaList + myLinkAddition
-			chrome.storage.local.set({'linkedMediaList': linkedMediaList }, function() {
-				//console.log('cs storage.local.set({linkedMediaList:'+linkedMediaList);
-				if (myURL='killAndFill'){
-					console.log('myURL===killAndFill')
-					chrome.runtime.sendMessage('killTab',function(response){});
-				}
-			});
-		});
+		myMediaLink=encodeURI($(this).attr("href"));
+		myMediaTitle=encodeURI($(this).html());
+		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'"}'
+		chrome.runtime.sendMessage('updtDLF-'+myLinkAddition)
 	})
 }
 

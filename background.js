@@ -14,12 +14,36 @@ chrome.runtime.onMessage.addListener(
 
 				case "refNode":
 					//alert('refNode:  ' + messageType + '     : UFC messageContent:' + messageContent);
-
 					//var myPage = chrome.extension.getBackgroundPage();
 					//alert(chrome.extension.getBackgroundPage().document.getElementById("linkedNodeList").innerHTML);
 					//myPage.find("#linkedNodeList").append('<tr><td>new</td><td>new</td></tr>');
+				break;
 
+				case "updtMRF":
+					chrome.storage.local.get('nodeRefList', function (result) {
+						var nodeRefList = result.nodeRefList;
+						
+						if(nodeRefList===''){
+								nodeRefList = messageContent;
+							} else {
+								nodeRefList = nodeRefList + ','+ messageContent;
+							};
+						chrome.storage.local.set({'nodeRefList': nodeRefList }, function() {
+        				});
+    				});
+				break;
 
+				case "updtDLF":
+					chrome.storage.local.get('linkedMediaList', function (result) {
+						linkedMediaList = result.linkedMediaList;
+						if(linkedMediaList===''){
+							linkedMediaList = messageContent;
+						} else {
+							linkedMediaList = linkedMediaList + ',' + messageContent;
+						};
+						chrome.storage.local.set({'linkedMediaList': linkedMediaList }, function() {
+						});
+					});
 				break;
 
 				default:

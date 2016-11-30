@@ -1,5 +1,5 @@
 // closing tabs- can't be done ON the tabs, but rather on the background script. This runs all the time and listens to all calls from the extension across all tabs..
-
+chrome.runtime.sendMessage('hello from the background');
 chrome.runtime.onMessage.addListener(
 	function(message,sender,sendResponse){
 		try {	
@@ -35,7 +35,8 @@ chrome.runtime.onMessage.addListener(
 
 				case "updtDLF":
 					chrome.storage.local.get('linkedMediaList', function (result) {
-						linkedMediaList = result.linkedMediaList;
+						var linkedMediaList = result.linkedMediaList;
+
 						if(linkedMediaList===''){
 							linkedMediaList = messageContent;
 						} else {
@@ -43,7 +44,9 @@ chrome.runtime.onMessage.addListener(
 						};
 						chrome.storage.local.set({'linkedMediaList': linkedMediaList }, function() {
 						});
+						//alert("updtDLF: chrome.storage.local.set: linkedMediaList: "+linkedMediaList);
 					});
+					//sendResponse({'message':'UFC: updtDLF completed in background.','senderTabId':sender.tab.id});
 				break;
 
 				default:

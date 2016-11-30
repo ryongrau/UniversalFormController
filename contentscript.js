@@ -18,41 +18,47 @@ $( document ).ready(function() {
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
 			var UFCFieldID = valuePair.substring(8,valuePair.length);
-			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + $.url().param(valuePair));
+			var UFCFieldData=$.url().param(valuePair);
+			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + UFCFieldData);
 			switch(UFCFieldType) {
 				// timestamp takes text, just get the format right
 				case 'ufc-txt':
-					//console.log('>>>>>ufc-txt:'+UFCFieldID+' >>> '+$.url().param(valuePair));
-					$('#'+ UFCFieldID).val($.url().param(valuePair));
+					//console.log('>>>>>ufc-txt:'+UFCFieldID+' >>> '+UFCFieldData);
+					$('#'+ UFCFieldID).val(UFCFieldData);
 				break;
 
 				
 				case 'ufc-chk':
-					if($.url().param(valuePair)==='TRUE'){
+					if(UFCFieldData==='TRUE'){
 						$('#'+ UFCFieldID).prop('checked',true);}
 					else {	$('#'+ UFCFieldID).prop('checked',false);}
 				break;
 
 				case 'ufc-sel':
-					$('#'+ UFCFieldID + ' option[value="' + $.url().param(valuePair) + '"]').prop('selected',true);
+					$('#'+ UFCFieldID + ' option[value="' + UFCFieldData + '"]').prop('selected',true);
 				break;
 				
 				// multiselect: important to ADD only-!
 				case 'ufc-msl':
-					for (var toAddToSelections in $.url().param(valuePair).split(',')){
-						//console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + $.url().param(valuePair).split(',')[toAddToSelections]);
-						$('#'+ UFCFieldID + ' option[value="' +  $.url().param(valuePair).split(',')[toAddToSelections] + '"]').prop('selected','selected');
+					for (var toAddToSelections in UFCFieldData.split(',')){
+						//console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + UFCFieldData.split(',')[toAddToSelections]);
+						$('#'+ UFCFieldID + ' option[value="' +  UFCFieldData.split(',')[toAddToSelections] + '"]').prop('selected','selected');
 					}
 				break;
 								
 				//Body Text: hidden iFrame 
 				case 'ufc-bod':
-
-					//$('#cke_contents_edit-body-und-0-value').html($.url().param(valuePair));//v1: now this seems to be missing..?
-					//$('#edit-body-und-0-format--2').html($.url().param(valuePair));
-					$('iframe').load(function(){
-						$('iframe').contents().find('body').html($.url().param(valuePair));
+					console.log('case ufc-bod');
+					//console.log('#cke_edit-body-und-0-value:::::'+$('#cke_edit-body-und-0-value').attr("title"));
+					//console.log('#cke_edit-body-und-0-value.find.iframe:::::'+$('#cke_edit-body-und-0-value').find('iframe').contents().find("").html());
+					//$('#edit-body-und-0-format--2').html(UFCFieldData);
+					$('#cke_edit-body-und-0-value').contents().find('iframe').load(function(){
+						console.log(' body iframe loaded');
+						console.log($('#cke_edit-body-und-0-value').find('iframe').contents().html());
+						$('iframe').contents().find('body').html(UFCFieldData);
 					});
+					$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
+
 
 				break;
 								
@@ -72,7 +78,7 @@ $( document ).ready(function() {
 						$('iframe').contents().find('a[href=#media-tab-library]').parent().parent().trigger('select');
 						//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
 						//end try
-						$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
+						$('iframe').contents().find('#edit-filename').val(UFCFieldData);
 						$('iframe').contents().find('#scrollbox').load(function(){
 							//console.log('#scrollbox loaded-2');
 							$('iframe').contents().find('a.exposed-button.button').trigger('click');
@@ -88,7 +94,7 @@ $( document ).ready(function() {
 						000
 					);
 					
-					var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;"><p>' + $.url().param(valuePair) + '</p></div>';
+					var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;"><p>' + UFCFieldData + '</p></div>';
 					$('body').append(htmlstr);
 
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
@@ -97,7 +103,7 @@ $( document ).ready(function() {
 						//$('iframe').contents().find('#media-browser-page').load(function(){
 							//console.log('#media-browser-iframe loaded-2');
 							//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
-							//$('iframe').contents().find('#edit-filename').val($.url().param(valuePair));
+							//$('iframe').contents().find('#edit-filename').val(UFCFieldData);
 							//$('iframe').contents().find('#edit-upload').trigger('click');
 							//$('iframe').contents().find('a.exposed-button.button').html('wasuuup');
 						//});
@@ -106,8 +112,8 @@ $( document ).ready(function() {
 				
 				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found
 					var myMatches = $('#media-browser-library-list tr').length;
-					//alert(myMatches + ' - ' + $.url().param(valuePair));
-					if(myMatches==$.url().param(valuePair)){
+					//alert(myMatches + ' - ' + UFCFieldData);
+					if(myMatches==UFCFieldData){
 						chrome.runtime.sendMessage('killTab',function(response){
 							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
@@ -136,8 +142,8 @@ $( document ).ready(function() {
         				chrome.runtime.sendMessage('updtMRF-'+myLinkAddition)
 					})
 					/*
-					if ($.url().param(valuePair).split(',').length()>0){
-						window.open('https://cms.doe.gov/admin/media/ref/'+$.url().param(valuePair).split(',')[0]+'?ufc-mdu='+$.url().param(valuePair).substring(indexOf(',')));
+					if (UFCFieldData.split(',').length()>0){
+						window.open('https://cms.doe.gov/admin/media/ref/'+UFCFieldData.split(',')[0]+'?ufc-mdu='+UFCFieldData.substring(indexOf(',')));
 					}
 		
 					if(myMatches < 1){
@@ -153,8 +159,9 @@ $( document ).ready(function() {
 				case 'ufc-dlf':// find all associated files related to download revisions (use from )
 					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
 					var revisionCount =-1;
-					revisionCount = $('li :contains(Revisions)').length;					
-					if ($.url().param(valuePair)==='fillAndKill'){
+					revisionCount = $('li :contains(Revisions)').length;
+						console.log('revisionCount: '+revisionCount);		
+					if (UFCFieldData==='fillAndKill'){
 						listFiles();
 						chrome.runtime.sendMessage('killTab',function(response){});
 					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
@@ -164,17 +171,24 @@ $( document ).ready(function() {
 						//console.log('for each revision....');
 						//for each tr: first a link
 						$('.sticky-table').find('tr:gt(0)').find('a:first').each(function(){
-								var myRevision = 'https://'+document.domain+$(this).attr('href')
+								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-dlf=fillAndKill'
 								console.log('myRevision:'+myRevision);
-								window.open(myRevision+'?ufc-dlf=fillAndKill')
+								window.open(myRevision)
 								//listFiles(myRevision);
-
 						});
+					} else if(revisionCount === 0 && window.location.pathname.split( '/' )[3] === 'workflow') {
+						console.log('go fillAndKill from https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
+						window.location.replace('https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
 					} else {
+						console.log ('else');
 						listFiles();
 					}
 					
-					
+				break;
+
+				case 'ufc-trg':// trigger ID
+					console.log("$('#"+ UFCFieldID +"').trigger('"+UFCFieldData+"');");
+					$('#'+ UFCFieldID).trigger('click');
 				break;
 
 				default:
@@ -193,12 +207,12 @@ $( document ).ready(function() {
 		});
 	}
 
-	if ($.url().param("ufc-submit-cls") ==='true'){
-		//console.log('1.) click Submit');
+	if ($.url().param("ufc-submit-cls") ==='TRUE'){
+		console.log('1.) click Submit');
 		$('#edit-submit').trigger('click');
 	}
 
-	if (document.referrer.indexOf('ufc-submit-cls=true')>-1){
+	if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
 		//console.log('4.) time to go away');
 		chrome.runtime.sendMessage('killTab',function(response){
 			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
@@ -206,7 +220,7 @@ $( document ).ready(function() {
 	}
 
 	if ($.url().param("ufc-sav-pub-cls") ==='true'){
-		//console.log('1.) click save');
+		console.log('1.) click save');
 		$('#edit-submit').trigger('click');
 		//$('#edit-submit').click();
 	}
@@ -246,8 +260,8 @@ $( document ).ready(function() {
 
 });
 
-function listFiles(myURL) {
-	console.log('function list files('+myURL+')');
+function listFiles() {
+	console.log('function listFiles()');
 	var myMatches = 0;
 	var myLinkedNode = '';
 	myLinkedNode = window.location.pathname;
@@ -255,18 +269,20 @@ function listFiles(myURL) {
 	var myMediaTitle = '';
 	var linkedMediaList='';
 	var myLinkAddition='';
-	$('.file').find('a').each(function(){
+	$('.field-type-file').find('a').each(function(){
 		myMediaLink=encodeURI($(this).attr("href"));
-		myMediaTitle=encodeURI($(this).html());
+		myMediaTitle=encodeURI($(this).find('.filename').html());
 		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'"}'
 		chrome.runtime.sendMessage('updtDLF-'+myLinkAddition)
+		console.log('chrome.runtime.sendMessage(updtDLF-'+myLinkAddition);
 	})
 }
 
 // a hook from the popup
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		console.log('I heard something: ' + request.greeting);
+		console.log('I heard something.');
+		console.log('I heard something, and it was: ' + request.greeting);
 		if(request.greeting === "getDemFields"){
 			var myFields = 'I found these fields: '
 			$('#page').find('input, select').each(
@@ -276,7 +292,7 @@ chrome.runtime.onMessage.addListener(
 			)
 			console.log(myFields);
 		} else {
-			console.log('unknown request ' );
+			console.log('unknown request :' );
 		}
 
 	}

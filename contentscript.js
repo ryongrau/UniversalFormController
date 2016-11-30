@@ -272,7 +272,7 @@ function listFiles() {
 	$('.field-type-file').find('a').each(function(){
 		myMediaLink=encodeURI($(this).attr("href"));
 		myMediaTitle=encodeURI($(this).find('.filename').html());
-		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'"}'
+		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID:Pending"}'
 		chrome.runtime.sendMessage('updtDLF-'+myLinkAddition)
 		console.log('chrome.runtime.sendMessage(updtDLF-'+myLinkAddition);
 	})

@@ -1,9 +1,7 @@
 $( document ).ready(function() {
-	console.log('popup.js pew pew');
+	console.log('popup.js active');
 	try{
 		$( "#tabs" ).tabs();
-
-
 		//tab 2
 		var nodeRefList
 		chrome.storage.local.get('nodeRefList', function (result) {
@@ -40,7 +38,10 @@ $( document ).ready(function() {
 		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaTitle) +
 		        "</td><td>" +
 		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaLink) +
+		        "</td><td>" +
+		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaID) +
 		        "</td></tr>";
+
 			}
 			$('#linkedMediaList').append(myRow);
 	    });

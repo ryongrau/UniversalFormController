@@ -11,10 +11,11 @@ jQuery.expr[':'].regex = function(elem, index, match) {
     return regex.test(jQuery(elem)[attr.method](attr.property));
 }
 
+//$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.21.18 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
+    console.log( "UFC 1.22.5 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
     console.log( "UFC document.URL:  " + document.URL);//your current page
-	//console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
+	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
 			var UFCFieldID = valuePair.substring(8,valuePair.length);
@@ -58,12 +59,29 @@ $( document ).ready(function() {
 						$('iframe').contents().find('body').html(UFCFieldData);
 					});
 					$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
+				break;
 
+				case 'pg-rt-x':
+					console.log(' case pg-rt-x-'+UFCFieldID+"  :  "+UFCFieldData);
+					awaitingRichText(UFCFieldID, UFCFieldData)
+					/*
+					console.log('current number of rich text paragraphs:'+$('.paragraphs-item-type-paragraphs-sp-rich-text').length);
+					setTimeout(function(){
+						console.log('PG rich text iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
+						//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
+							//alert('PG rich text iframe loaded!');
+							//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
+							//$('iframe').contents().find('body').html(UFCFieldData);
+							$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
+						//});
+
+					},2000);
+					*/
 
 				break;
 								
 				//files
-				case 'ufc-fml':// FILE FROM FILE LIBRARY-- 
+				case 'ufc-fml':// ADD FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
 					//***this doesn't need the filename to access so easily :)
 					//var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;">' + $.url().param('ufc-fll') + '</div>';
@@ -187,12 +205,36 @@ $( document ).ready(function() {
 				break;
 
 				case 'ufc-trg':// trigger ID
-					console.log("$('#"+ UFCFieldID +"').trigger('"+UFCFieldData+"');");
-					$('#'+ UFCFieldID).trigger('click');
+					var myOffset = $('#'+UFCFieldID ).offset();
+					console.log('Top left of my thing:'+myOffset.left + " : " + myOffset.top );
+					console.log('so imma click here x:'+(myOffset.left+($('#'+UFCFieldID ).width()/2))+ ", y: " + (myOffset.top+($('#'+UFCFieldID ).height()/2)));
+					var event = new MouseEvent(UFCFieldData, {
+						'view': window,
+						'bubbles': true,
+						'cancelable': true
+					});
+					var  myThing = document.getElementById(UFCFieldID);
+					var cancelled = !myThing.dispatchEvent(event);
+					if (cancelled) {
+					    // A handler called preventDefault.
+						console.log("cancelled");
+					} else {
+					    // None of the handlers called preventDefault.
+						console.log("not cancelled");
+					}
+
+
+					/*$('#'+ UFCFieldID).trigger(UFCFieldData);
+					console.log("TRIGGERED: $(#"+ UFCFieldID +").trigger("+UFCFieldData+");");
+					*/
+					$('#'+UFCFieldID).parent().children().each(function(){
+						console.log($(this).attr('id'));
+					});
+					
 				break;
 
 				default:
-					//console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
+					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
 				break;
 			}
 			
@@ -219,26 +261,42 @@ $( document ).ready(function() {
 		});
 	}
 
-	if ($.url().param("ufc-sav-pub-cls") ==='true'){
+	if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
 		console.log('1.) click save');
 		$('#edit-submit').trigger('click');
 		//$('#edit-submit').click();
 	}
 
-	if (document.referrer.indexOf('ufc-sav-pub-cls=true')>-1){
+	if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
 		//console.log('2.) view>>immediate publish::  '+ document.URL.replace('/view','/workflow/immediate%20publish'));
-		window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
+		//if(document.URL.indexOf('/node/')>-1){console.log("editing a revision");
+		//	window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
+		//} else {console.log("be gentle its the first time: OR just the front page: "+ document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new'); 
+			window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+		//}
+
 	}
 
 	if ($.url().param("ufc-sav-pub-cls") ==='pub'){
-		//console.log('3) click update state');
+		console.log('3 click update state');
 		$('#edit-submit').trigger('click');
+	}
+
+	if ($.url().param("ufc-sav-pub-cls") ==='new'){
+		console.log('2 1/2) pub new node');
+		//$('a[href*="immediate%20publish"]').eq(1).each(function() {
+		    //console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
+		    //window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
+		$('fieldset:contains("Drafts")').find('a[href*="immediate%20publish"]').eq(0).each(function() {
+			console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
+			window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
+		});
 	}
 
 	if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
 		//console.log('4.) time to go away');
 		chrome.runtime.sendMessage('killTab',function(response){
-			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 		});
 	}
 
@@ -259,6 +317,21 @@ $( document ).ready(function() {
 	*/
 
 });
+
+
+function awaitingRichText(UFCFieldID, UFCFieldData){
+	setTimeout(function(){
+		console.log('awaitingRichText iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
+		//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
+			//alert('PG rich text iframe loaded!');
+			//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
+			//$('iframe').contents().find('body').html(UFCFieldData);
+			$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
+		//});
+
+	},2000);
+
+}
 
 function listFiles() {
 	console.log('function listFiles()');
@@ -297,6 +370,8 @@ chrome.runtime.onMessage.addListener(
 
 	}
 )
+
+// running google test event..
 
 
 

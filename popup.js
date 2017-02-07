@@ -1,6 +1,19 @@
 $( document ).ready(function() {
 	console.log('popup.js active');
 	try{
+		var tabCount =0;
+		//var myQueryInfo = new Object();
+		//myQueryInfo.currentWindow=true;
+		chrome.tabs.query({currentWindow: true}, function(tabs){
+			tabCount=tabs.length;
+			$('#tabcount').append(tabCount);
+		});
+		
+	} catch(err) {
+		console.log(err);
+	}
+
+	try{
 		$( "#tabs" ).tabs();
 		//tab 2
 		var nodeRefList

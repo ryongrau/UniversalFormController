@@ -10,10 +10,13 @@ jQuery.expr[':'].regex = function(elem, index, match) {
         regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
     return regex.test(jQuery(elem)[attr.method](attr.property));
 }
-
+var UFCData = {};
+UFCData.tasksToComplete = 0;
+UFCData.taskRetry=3000;
+UFCData.PGinProgress=0
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.22.5 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
+    console.log( "UFC 1.23.00 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
     console.log( "UFC document.URL:  " + document.URL);//your current page
 	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
@@ -61,23 +64,11 @@ $( document ).ready(function() {
 					$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
 				break;
 
-				case 'pg-rt-x':
-					console.log(' case pg-rt-x-'+UFCFieldID+"  :  "+UFCFieldData);
-					awaitingRichText(UFCFieldID, UFCFieldData)
-					/*
-					console.log('current number of rich text paragraphs:'+$('.paragraphs-item-type-paragraphs-sp-rich-text').length);
-					setTimeout(function(){
-						console.log('PG rich text iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
-						//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
-							//alert('PG rich text iframe loaded!');
-							//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
-							//$('iframe').contents().find('body').html(UFCFieldData);
-							$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
-						//});
-
-					},2000);
-					*/
-
+				case 'new-par':
+					console.log(' case new-par-'+UFCFieldID+"  :  "+UFCFieldData);
+					UFCData.tasksToComplete = UFCData.tasksToComplete+1;
+					console.log('now I have this so many:'+UFCData.tasksToComplete);
+					addNewParagraph(UFCFieldID, UFCFieldData);
 				break;
 								
 				//files
@@ -217,18 +208,16 @@ $( document ).ready(function() {
 					var cancelled = !myThing.dispatchEvent(event);
 					if (cancelled) {
 					    // A handler called preventDefault.
-						console.log("cancelled");
+						//console.log("cancelled");
 					} else {
 					    // None of the handlers called preventDefault.
-						console.log("not cancelled");
+						//console.log("not cancelled");
 					}
 
 
-					/*$('#'+ UFCFieldID).trigger(UFCFieldData);
-					console.log("TRIGGERED: $(#"+ UFCFieldID +").trigger("+UFCFieldData+");");
-					*/
+
 					$('#'+UFCFieldID).parent().children().each(function(){
-						console.log($(this).attr('id'));
+						console.log($(this).attr('name'));
 					});
 					
 				break;
@@ -242,85 +231,188 @@ $( document ).ready(function() {
 			console.log(err);
 		}
 	}
-
-	if ($.url().param("killTab") ==='TRUE'){
-		chrome.runtime.sendMessage('killTab',function(response){
-			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-		});
-	}
-
-	if ($.url().param("ufc-submit-cls") ==='TRUE'){
-		console.log('1.) click Submit');
-		$('#edit-submit').trigger('click');
-	}
-
-	if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
-		//console.log('4.) time to go away');
-		chrome.runtime.sendMessage('killTab',function(response){
-			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-		});
-	}
-
-	if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
-		console.log('1.) click save');
-		$('#edit-submit').trigger('click');
-		//$('#edit-submit').click();
-	}
-
-	if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
-		//console.log('2.) view>>immediate publish::  '+ document.URL.replace('/view','/workflow/immediate%20publish'));
-		//if(document.URL.indexOf('/node/')>-1){console.log("editing a revision");
-		//	window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
-		//} else {console.log("be gentle its the first time: OR just the front page: "+ document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new'); 
-			window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
-		//}
-
-	}
-
-	if ($.url().param("ufc-sav-pub-cls") ==='pub'){
-		console.log('3 click update state');
-		$('#edit-submit').trigger('click');
-	}
-
-	if ($.url().param("ufc-sav-pub-cls") ==='new'){
-		console.log('2 1/2) pub new node');
-		//$('a[href*="immediate%20publish"]').eq(1).each(function() {
-		    //console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
-		    //window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
-		$('fieldset:contains("Drafts")').find('a[href*="immediate%20publish"]').eq(0).each(function() {
-			console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
-			window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
-		});
-	}
-
-	if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
-		//console.log('4.) time to go away');
-		chrome.runtime.sendMessage('killTab',function(response){
-			console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-		});
-	}
-
-	/*
-	if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
-		$(':regex(href,workflow)').first().each(function(){
-			//console.log('link:' + $(this).attr('href'));
-			window.location.replace('https://stage.cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
-		});
-	} 
-	if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){
-
-		chrome.runtime.sendMessage('killTab',function(response){
-			//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-		});
-		
-	} 
-	*/
-
+//######### saving and closing 
+	pageClosing();
 });
 
+function pageClosing(){
+	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	if(UFCData.tasksToComplete===0){
+		if ($.url().param("killTab") ==='TRUE'){
+			chrome.runtime.sendMessage('killTab',function(response){
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
 
-function awaitingRichText(UFCFieldID, UFCFieldData){
-	setTimeout(function(){
+		if ($.url().param("ufc-submit-cls") ==='TRUE'){
+			console.log('1.) click Submit');
+			$('#edit-submit').trigger('click');
+		}
+
+		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
+			//console.log('4.) time to go away');
+			chrome.runtime.sendMessage('killTab',function(response){
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
+
+		if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
+			console.log('1.) click save');
+			$('#edit-submit').trigger('click');
+			//$('#edit-submit').click();
+		}
+
+		if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
+			//console.log('2.) view>>immediate publish::  '+ document.URL.replace('/view','/workflow/immediate%20publish'));
+			//if(document.URL.indexOf('/node/')>-1){console.log("editing a revision");
+			//	window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
+			//} else {console.log("be gentle its the first time: OR just the front page: "+ document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new'); 
+				window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+			//}
+		}
+
+		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
+			console.log('3 click update state');
+			$('#edit-submit').trigger('click');
+		}
+
+		if ($.url().param("ufc-sav-pub-cls") ==='new'){
+			console.log('2 1/2) pub new node');
+			//$('a[href*="immediate%20publish"]').eq(1).each(function() {
+			    //console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
+			    //window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
+			$('fieldset:contains("Drafts")').find('a[href*="immediate%20publish"]').eq(0).each(function() {
+				console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
+				window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
+			});
+		}
+
+		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
+			//console.log('4.) time to go away');
+			chrome.runtime.sendMessage('killTab',function(response){
+				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
+
+		/*
+		if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
+			$(':regex(href,workflow)').first().each(function(){
+				//console.log('link:' + $(this).attr('href'));
+				window.location.replace('https://stage.cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
+			});
+		} 
+		if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){
+
+			chrome.runtime.sendMessage('killTab',function(response){
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+			
+		} 
+		*/
+		console.log('no final pageClosing applied; job done.');
+	}else{
+		console.log('setTimeout(pageClosing(),(2000));');
+		setTimeout(function(){pageClosing();},(2000));
+	}
+}
+
+function addNewParagraph(paragraphType, paragraphContent){
+	//if(UFCData.PGProcessing===0){
+		console.log('addNewParagraph:'+paragraphType);
+		UFCData.PGProcessing=UFCData.PGProcessing+1;
+		var paragraphName = ""
+		switch(paragraphType){
+			case 'text':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_rich_text'
+			break;
+			case 'heading':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_heading'
+			break;
+			case 'image':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_image'
+			break;
+			case 'list':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_list'
+			break;
+			case 'blockquote':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_blockquote'
+			break;
+			case 'youtube':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_youtube'
+			break;
+			case 'feature':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_ref'
+			break;
+			case 'listing':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_ref'
+			break;
+			case 'static-listing':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_n_refs'
+			break;
+			case 'multicolumn':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_multi_column'
+			break;
+			case 'photogallery':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_photo_gallery'
+			break;
+			case 'table':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table'
+			break;
+		}
+		//var myOffset = $('input[name='+paragraphName+']').offset();
+		//console.log('Top left of my thing:'+myOffset.left + " : " + myOffset.top );
+		//console.log('so imma click here x:'+(myOffset.left+($('input[name='+paragraphName+']' ).width()/2))+ ", y: " + (myOffset.top+($('input[name='+paragraphName+']').height()/2)));
+		clickAddNewPar(paragraphName);
+		
+	/*} else {
+		console.log('addNewParagraph:'+paragraphType+ 'is busy; trying again later');
+		setTimeout(function(){
+			addNewParagraph(paragraphType, paragraphContent);
+		},(2000));
+	}*/
+}	
+
+function clickAddNewPar (paragraphName){
+	if(UFCData.PGinProgress===0){
+		UFCData.PGinProgress=UFCData.PGinProgress+1;
+		console.log('clickAddNewPar:'+paragraphName);
+		var event = new MouseEvent('mousedown', {
+			'view': window,
+			'bubbles': true,
+			'cancelable': true
+		});
+		var myAddButton = $('input[name='+paragraphName+']').get(0);
+		myAddButton.dispatchEvent(event);
+		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
+		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr').length;
+		console.log(paragraphName+' myParagraphsCount: '+UFCData.myParagraphsCount);
+		myParagraphs.addEventListener('DOMSubtreeModified', myParagraphListener, false);
+	} else {
+		setTimeout(function(){
+			clickAddNewPar(paragraphName);
+		},(300));
+	}
+}
+
+
+function myParagraphListener(){
+	if(UFCData.myParagraphsCount < $("#edit-field-body-paragraphs").find('tr').length){
+		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr').length;
+		console.log('myParagraphsCount changed: '+UFCData.myParagraphsCount);
+		UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
+		UFCData.PGinProgress=UFCData.PGinProgress - 1;
+		console.log("added new pg");
+		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
+		myParagraphs.removeEventListener('DOMSubtreeModified', myParagraphListener, false);
+	}
+}
+
+function fillNewParagraphs(){
+	//that's one for wednesday ;;;;;;;
+}
+
+	//filling in rich text pgs later:
+	/*setTimeout(function(){
 		console.log('awaitingRichText iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
 		//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
 			//alert('PG rich text iframe loaded!');
@@ -331,7 +423,22 @@ function awaitingRichText(UFCFieldID, UFCFieldData){
 
 	},2000);
 
-}
+					console.log('current number of rich text paragraphs:'+$('.paragraphs-item-type-paragraphs-sp-rich-text').length);
+					setTimeout(function(){
+						console.log('PG rich text iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
+						//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
+							//alert('PG rich text iframe loaded!');
+							//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
+							//$('iframe').contents().find('body').html(UFCFieldData);
+							$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
+						//});
+
+					},2000);
+	
+
+	*/
+
+
 
 function listFiles() {
 	console.log('function listFiles()');

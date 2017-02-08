@@ -13,10 +13,22 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 var UFCData = {};
 UFCData.tasksToComplete = 0;
 UFCData.taskRetry=3000;
-UFCData.PGinProgress=0
+UFCData.PGinProgress=0;
+UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_rich_text','paragraphs-item-type-paragraphs-sp-rich-text'],
+	['heading','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_heading','paragraphs-item-type-paragraphs-sp-heading'],
+	['image','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_image','paragraphs-item-type-paragraphs-sp-image'],
+	['list','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_list','paragraphs-item-type-paragraphs-sp-list'],
+	['blockquote','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_blockquote','paragraphs-item-type-paragraphs-sp-blockquote'],
+	['youtube','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_youtube','paragraphs-item-type-energy-paragraphs-youtube'],
+	['feature','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_ref','paragraphs-item-type-energy-paragraphs-ref'],
+	['listing','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_ref','paragraphs-item-type-energy-paragraphs-listing-ref'],
+	['static-listing','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_n_refs','paragraphs-item-type-energy-paragraphs-listing-n-refs'],
+	['multicolumn','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_multi_column','paragraphs-item-type-energy-paragraphs-multi-column'],
+	['photogallery','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_photo_gallery','paragraphs-item-type-energy-paragraphs-photo-gallery'],
+	['table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table','paragraphs-item-type-paragraphs-sp-table']]
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.23.00 at the ready: HREF::" + $(this).attr('href')); //redult: undefined
+    console.log( "UFC 1.23.12 at the ready:"); 
     console.log( "UFC document.URL:  " + document.URL);//your current page
 	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
@@ -65,9 +77,8 @@ $( document ).ready(function() {
 				break;
 
 				case 'new-par':
-					console.log(' case new-par-'+UFCFieldID+"  :  "+UFCFieldData);
+					console.log('UFCData.tasksToComplete before addNewParagraph('+UFCFieldID+', '+UFCFieldData+')='+UFCData.tasksToComplete);
 					UFCData.tasksToComplete = UFCData.tasksToComplete+1;
-					console.log('now I have this so many:'+UFCData.tasksToComplete);
 					addNewParagraph(UFCFieldID, UFCFieldData);
 				break;
 								
@@ -107,16 +118,7 @@ $( document ).ready(function() {
 					$('body').append(htmlstr);
 
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
-					$('#mediaBrowser').load(function(){
-						//console.log('#mediaBrowser loaded-1');
-						//$('iframe').contents().find('#media-browser-page').load(function(){
-							//console.log('#media-browser-iframe loaded-2');
-							//$('iframe').contents().find('#media-tab-upload,#media-tab-library').toggleClass('ui-tabs-hide');
-							//$('iframe').contents().find('#edit-filename').val(UFCFieldData);
-							//$('iframe').contents().find('#edit-upload').trigger('click');
-							//$('iframe').contents().find('a.exposed-button.button').html('wasuuup');
-						//});
-					});
+
 				break;	
 				
 				case 'ufc-mdc'://UFC-Media Check- check the number of items expected against number of media found
@@ -150,19 +152,7 @@ $( document ).ready(function() {
         				console.log('updtMRF-'+myLinkAddition);
         				chrome.runtime.sendMessage('updtMRF-'+myLinkAddition)
 					})
-					/*
-					if (UFCFieldData.split(',').length()>0){
-						window.open('https://cms.doe.gov/admin/media/ref/'+UFCFieldData.split(',')[0]+'?ufc-mdu='+UFCFieldData.substring(indexOf(',')));
-					}
-		
-					if(myMatches < 1){
-						chrome.runtime.sendMessage('killTab',function(response){
-							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-						});
-					} else {
-						//console.log('media is used, keeping tab open');
-					}
-					*/
+
 				break;
 
 				case 'ufc-dlf':// find all associated files related to download revisions (use from )
@@ -183,7 +173,6 @@ $( document ).ready(function() {
 								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-dlf=fillAndKill'
 								console.log('myRevision:'+myRevision);
 								window.open(myRevision)
-								//listFiles(myRevision);
 						});
 					} else if(revisionCount === 0 && window.location.pathname.split( '/' )[3] === 'workflow') {
 						console.log('go fillAndKill from https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
@@ -192,7 +181,6 @@ $( document ).ready(function() {
 						console.log ('else');
 						listFiles();
 					}
-					
 				break;
 
 				case 'ufc-trg':// trigger ID
@@ -213,20 +201,14 @@ $( document ).ready(function() {
 					    // None of the handlers called preventDefault.
 						//console.log("not cancelled");
 					}
-
-
-
 					$('#'+UFCFieldID).parent().children().each(function(){
 						console.log($(this).attr('name'));
 					});
-					
 				break;
-
 				default:
 					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
 				break;
 			}
-			
 		} catch(err) {
 			console.log(err);
 		}
@@ -235,91 +217,12 @@ $( document ).ready(function() {
 	pageClosing();
 });
 
-function pageClosing(){
-	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
-	if(UFCData.tasksToComplete===0){
-		if ($.url().param("killTab") ==='TRUE'){
-			chrome.runtime.sendMessage('killTab',function(response){
-				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-			});
-		}
-
-		if ($.url().param("ufc-submit-cls") ==='TRUE'){
-			console.log('1.) click Submit');
-			$('#edit-submit').trigger('click');
-		}
-
-		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
-			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
-				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-			});
-		}
-
-		if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
-			console.log('1.) click save');
-			$('#edit-submit').trigger('click');
-			//$('#edit-submit').click();
-		}
-
-		if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
-			//console.log('2.) view>>immediate publish::  '+ document.URL.replace('/view','/workflow/immediate%20publish'));
-			//if(document.URL.indexOf('/node/')>-1){console.log("editing a revision");
-			//	window.location.replace(document.URL.replace('/view','/workflow/immediate%20publish?ufc-sav-pub-cls=pub'))
-			//} else {console.log("be gentle its the first time: OR just the front page: "+ document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new'); 
-				window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
-			//}
-		}
-
-		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
-			console.log('3 click update state');
-			$('#edit-submit').trigger('click');
-		}
-
-		if ($.url().param("ufc-sav-pub-cls") ==='new'){
-			console.log('2 1/2) pub new node');
-			//$('a[href*="immediate%20publish"]').eq(1).each(function() {
-			    //console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
-			    //window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
-			$('fieldset:contains("Drafts")').find('a[href*="immediate%20publish"]').eq(0).each(function() {
-				console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
-				window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
-			});
-		}
-
-		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
-			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
-				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-			});
-		}
-
-		/*
-		if($.url(document.referrer).param("ufc-autopub") ==='true' && document.referrer != ''){
-			$(':regex(href,workflow)').first().each(function(){
-				//console.log('link:' + $(this).attr('href'));
-				window.location.replace('https://stage.cms.doe.gov' + $(this).attr('href') + '?ufc-autopub=workflow1')
-			});
-		} 
-		if($.url(document.referrer).param("ufc-autopub") ==='workflow2' && document.referrer != ''){
-
-			chrome.runtime.sendMessage('killTab',function(response){
-				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
-			});
-			
-		} 
-		*/
-		console.log('no final pageClosing applied; job done.');
-	}else{
-		console.log('setTimeout(pageClosing(),(2000));');
-		setTimeout(function(){pageClosing();},(2000));
-	}
-}
-
-function addNewParagraph(paragraphType, paragraphContent){
-	//if(UFCData.PGProcessing===0){
+function addNewParagraph (paragraphType, paragraphContent){
+	if(UFCData.PGinProgress===0){
+		UFCData.PGinProgress=UFCData.PGinProgress+1;
+		UFCData.currentParagraphType=paragraphType;
+		UFCData.currentParagraphContent=paragraphContent;
 		console.log('addNewParagraph:'+paragraphType);
-		UFCData.PGProcessing=UFCData.PGProcessing+1;
 		var paragraphName = ""
 		switch(paragraphType){
 			case 'text':
@@ -359,23 +262,6 @@ function addNewParagraph(paragraphType, paragraphContent){
 				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table'
 			break;
 		}
-		//var myOffset = $('input[name='+paragraphName+']').offset();
-		//console.log('Top left of my thing:'+myOffset.left + " : " + myOffset.top );
-		//console.log('so imma click here x:'+(myOffset.left+($('input[name='+paragraphName+']' ).width()/2))+ ", y: " + (myOffset.top+($('input[name='+paragraphName+']').height()/2)));
-		clickAddNewPar(paragraphName);
-		
-	/*} else {
-		console.log('addNewParagraph:'+paragraphType+ 'is busy; trying again later');
-		setTimeout(function(){
-			addNewParagraph(paragraphType, paragraphContent);
-		},(2000));
-	}*/
-}	
-
-function clickAddNewPar (paragraphName){
-	if(UFCData.PGinProgress===0){
-		UFCData.PGinProgress=UFCData.PGinProgress+1;
-		console.log('clickAddNewPar:'+paragraphName);
 		var event = new MouseEvent('mousedown', {
 			'view': window,
 			'bubbles': true,
@@ -384,61 +270,81 @@ function clickAddNewPar (paragraphName){
 		var myAddButton = $('input[name='+paragraphName+']').get(0);
 		myAddButton.dispatchEvent(event);
 		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
-		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr').length;
-		console.log(paragraphName+' myParagraphsCount: '+UFCData.myParagraphsCount);
+		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length;
+		console.log(paragraphType+' starting event listener with initial UFCData.myParagraphsCount='+UFCData.myParagraphsCount);
 		myParagraphs.addEventListener('DOMSubtreeModified', myParagraphListener, false);
 	} else {
 		setTimeout(function(){
-			clickAddNewPar(paragraphName);
+			addNewParagraph(paragraphType, paragraphContent);
 		},(300));
 	}
 }
 
 
 function myParagraphListener(){
-	if(UFCData.myParagraphsCount < $("#edit-field-body-paragraphs").find('tr').length){
-		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr').length;
-		console.log('myParagraphsCount changed: '+UFCData.myParagraphsCount);
-		UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
-		UFCData.PGinProgress=UFCData.PGinProgress - 1;
-		console.log("added new pg");
+	//so, every time something changes in PG table, only IF new TR added
+	//console.log("myParagraphListener triggered, paragraph count="+$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length);
+	if(UFCData.myParagraphsCount < $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length){
+		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length;
+		//console.log('myParagraphListener myParagraphsCount increased: '+UFCData.myParagraphsCount);
+		fillNewParagraph(UFCData.currentParagraphType, UFCData.currentParagraphContent);
 		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
 		myParagraphs.removeEventListener('DOMSubtreeModified', myParagraphListener, false);
+		//still going to add the filling as its own loop, waiting for feilds to appear after TR incase it's noy all at once..
 	}
 }
 
-function fillNewParagraphs(){
-	//that's one for wednesday ;;;;;;;
+function fillNewParagraph(paragraphType, paragraphContent){
+		var myParagraph=$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last();
+		switch(paragraphType){
+			case 'text':
+				//[iframe text]
+			break;
+			case 'heading':
+				//name: field_para_sp_heading,field_para_energy_heading_link,Heading Text field is required.
+				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+			break;
+			case 'image':
+				//field_para_sp_img_caption,field_para_sp_img_attrib,field_para_energy_img_alt,field_para_sp_img_url
+				myParagraph.find('input:text[name*="field_para_sp_img_caption"]').val(paragraphContent);
+			break;
+			case 'list':
+			break;
+			case 'blockquote'://[iframe text],field_para_energy_bq_cite_name,field_para_energy_bq_cite_title
+			break;
+			case 'youtube':
+				//[media]field_energy_youtube_caption,field_energy_youtube_attribution
+				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+			break;
+			case 'feature':
+				//field_para_energy_ref_title,field_para_energy_ref_item[target_id],Featured Item field is required. {page: 'Visual QA Testing Page (2207053)'}
+				myParagraph.find('input:text[name*="field_para_energy_ref_title"]').val(paragraphContent);
+				myParagraph.find('input:text[name*="field_para_energy_ref_item"]').val('Visual QA Testing Page (2207053)');
+			break;
+			case 'listing':
+				//field_para_sp_heading,field_para_energy_listing_ref[tarhet_id],Listing field is required{listing: 'Visual QA Testing Listing (2207045)'}
+				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+				myParagraph.find('input:text[name*="field_para_energy_listing_ref"]').val('Visual QA Testing Listing (2207045)');
+			break;
+			case 'static-listing':
+				//field_para_sp_heading,field_para_energy_ref_items(10),field_para_energy_ref_title,(media), heading text required, 1st item required {page: 'Visual QA Testing Page (2207053)'}
+				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Listing (2207045)');
+			break;
+			case 'multicolumn':
+			break;
+			case 'photogallery':
+				//field_para_energy_ref_pg,Photo Gallery field is required {photogallery: 'Visual QA Testing Photo Gallery [nid:2207057]'}
+				myParagraph.find('input:text[name*="field_para_energy_ref_pg"]').val('Visual QA Testing Photo Gallery [nid:2207057]');
+			break;
+			case 'table'://Table Data File field is required.
+			break;
+		}
+		UFCData.currentParagraphType='';
+		UFCData.currentParagraphContent='';
+		UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
+		UFCData.PGinProgress=UFCData.PGinProgress - 1;
 }
-
-	//filling in rich text pgs later:
-	/*setTimeout(function(){
-		console.log('awaitingRichText iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
-		//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
-			//alert('PG rich text iframe loaded!');
-			//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
-			//$('iframe').contents().find('body').html(UFCFieldData);
-			$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
-		//});
-
-	},2000);
-
-					console.log('current number of rich text paragraphs:'+$('.paragraphs-item-type-paragraphs-sp-rich-text').length);
-					setTimeout(function(){
-						console.log('PG rich text iframe loaded--'+$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').attr("title"));
-						//$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').load(function(){
-							//alert('PG rich text iframe loaded!');
-							//console.log($('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().html());
-							//$('iframe').contents().find('body').html(UFCFieldData);
-							$('.paragraphs-item-type-paragraphs-sp-rich-text').eq(UFCFieldID).find('iframe').contents().find('body').html(UFCFieldData);
-						//});
-
-					},2000);
-	
-
-	*/
-
-
 
 function listFiles() {
 	console.log('function listFiles()');
@@ -478,12 +384,59 @@ chrome.runtime.onMessage.addListener(
 	}
 )
 
-// running google test event..
+function pageClosing(){
+	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	if(UFCData.tasksToComplete===0){
+		if ($.url().param("killTab") ==='TRUE'){
+			chrome.runtime.sendMessage('killTab',function(response){
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
 
+		if ($.url().param("ufc-submit-cls") ==='TRUE'){
+			console.log('1.) click Submit');
+			$('#edit-submit').trigger('click');
+		}
 
+		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
+			//console.log('4.) time to go away');
+			chrome.runtime.sendMessage('killTab',function(response){
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
 
+		if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
+			console.log('1.) click save');
+			$('#edit-submit').trigger('click');
+		}
 
+		if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
+			window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+		}
 
+		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
+			console.log('3 click update state');
+			$('#edit-submit').trigger('click');
+		}
 
+		if ($.url().param("ufc-sav-pub-cls") ==='new'){
+			console.log('2 1/2) pub new node');
 
+			$('fieldset:contains("Drafts")').find('a[href*="immediate%20publish"]').eq(0).each(function() {
+				console.log('immediate publish'+$(this).attr('href')+'?ufc-sav-pub-cls=pub');
+				window.location.replace($(this).attr('href')+'?ufc-sav-pub-cls=pub')
+			});
+		}
 
+		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
+			//console.log('4.) time to go away');
+			chrome.runtime.sendMessage('killTab',function(response){
+				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			});
+		}
+		console.log('pageClosing job done.');
+	}else{
+		//console.log('setTimeout(pageClosing(),(2000));');
+		setTimeout(function(){pageClosing();},(3000));
+	}
+}

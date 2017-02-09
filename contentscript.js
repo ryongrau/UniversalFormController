@@ -28,7 +28,7 @@ UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_p
 	['table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table','paragraphs-item-type-paragraphs-sp-table']]
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.23.12 at the ready:"); 
+    console.log( "UFC 1.24.00 at the ready:"); 
     console.log( "UFC document.URL:  " + document.URL);//your current page
 	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
@@ -280,7 +280,6 @@ function addNewParagraph (paragraphType, paragraphContent){
 	}
 }
 
-
 function myParagraphListener(){
 	//so, every time something changes in PG table, only IF new TR added
 	//console.log("myParagraphListener triggered, paragraph count="+$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length);
@@ -298,7 +297,10 @@ function fillNewParagraph(paragraphType, paragraphContent){
 		var myParagraph=$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last();
 		switch(paragraphType){
 			case 'text':
-				//[iframe text]
+				UFCData.PGinProgress=UFCData.PGinProgress + 1;
+				UFCData.tasksToComplete =UFCData.tasksToComplete + 1;
+				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
+				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
 			break;
 			case 'heading':
 				//name: field_para_sp_heading,field_para_energy_heading_link,Heading Text field is required.
@@ -340,10 +342,30 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'table'://Table Data File field is required.
 			break;
 		}
-		UFCData.currentParagraphType='';
-		UFCData.currentParagraphContent='';
+		//UFCData.currentParagraphType='';
+		//UFCData.currentParagraphContent='';
 		UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
 		UFCData.PGinProgress=UFCData.PGinProgress - 1;
+}
+
+function fillRichTextListener(){
+	var myParagraph=$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last();
+	//if(!myParagraph.find('iframe').eq(0).attr("title")){}else{
+		//console.log('>>>fill '+myParagraph.find('iframe').attr("title")+' with '+(UFCData.currentParagraphContent));
+		//myParagraph.contents().find('iframe').load(function(){
+						//console.log('>>>CONTENTS:'+myParagraph.find('iframe').contents().find('body').html());
+
+	var myIFrame =$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last().contents().find('iframe')	
+	myIFrame.load(function(){
+			if(myIFrame.contents().find('body').html()!=UFCData.currentParagraphContent){
+				myParagraph.get(0).removeEventListener('DOMSubtreeModified', fillRichTextListener, true);
+				console.log('>>>CONTENTS:'+myIFrame.contents().find('body').html());
+				myIFrame.contents().find('body').html(UFCData.currentParagraphContent);
+				UFCData.PGinProgress=UFCData.PGinProgress - 1;
+				UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
+			}
+		})
+	//}
 }
 
 function listFiles() {

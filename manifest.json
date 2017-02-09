@@ -2,7 +2,7 @@
   	
 	"manifest_version": 2,
 	"name": "Universal Form Controller",
-	"version": "1.23.12",
+	"version": "1.24.00",
 	"description": "A drupal-specific task automation plugin",
 	"web_accessible_resources": ["jquery-1.10.2.min.map","jquery-ui.1.11.4.min.js","purl.js","jquery-ui.1.11.4.min.css"], 
 	"browser_action": {

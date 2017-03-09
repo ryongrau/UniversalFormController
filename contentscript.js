@@ -28,7 +28,7 @@ UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_p
 	['table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table','paragraphs-item-type-paragraphs-sp-table']]
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.24.00 at the ready:"); 
+    console.log( "UFC 1.24.01 at the ready:"); 
     console.log( "UFC document.URL:  " + document.URL);//your current page
 	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	for (var valuePair in $.url().param()){
@@ -261,6 +261,9 @@ function addNewParagraph (paragraphType, paragraphContent){
 			case 'table':
 				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table'
 			break;
+			case 'blockref':
+				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_block_ref'
+			break;
 		}
 		var event = new MouseEvent('mousedown', {
 			'view': window,
@@ -313,6 +316,10 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'list':
 			break;
 			case 'blockquote'://[iframe text],field_para_energy_bq_cite_name,field_para_energy_bq_cite_title
+				UFCData.PGinProgress=UFCData.PGinProgress + 1;
+				UFCData.tasksToComplete =UFCData.tasksToComplete + 1;
+				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
+				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
 			break;
 			case 'youtube':
 				//[media]field_energy_youtube_caption,field_energy_youtube_attribution
@@ -331,7 +338,13 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'static-listing':
 				//field_para_sp_heading,field_para_energy_ref_items(10),field_para_energy_ref_title,(media), heading text required, 1st item required {page: 'Visual QA Testing Page (2207053)'}
 				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
-				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Listing (2207045)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Article (2207013)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(1).val('Visual QA Testing Download (2207025)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(2).val('Visual QA Testing Event (2207033)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(3).val('Visual QA Testing External Resource (2207029)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(4).val('Visual QA Testing Download (2207025)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(5).val('Visual QA Testing Page (2207053)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(6).val('Visual QA Testing Pivot Table (2207065)');
 			break;
 			case 'multicolumn':
 			break;
@@ -340,6 +353,9 @@ function fillNewParagraph(paragraphType, paragraphContent){
 				myParagraph.find('input:text[name*="field_para_energy_ref_pg"]').val('Visual QA Testing Photo Gallery [nid:2207057]');
 			break;
 			case 'table'://Table Data File field is required.
+			break;
+			case 'blockref'://Table Data File field is required.
+				myParagraph.find('input:text[name*="field_para_block_ref"]').val('IE: Upcoming Events [bid:10771]');
 			break;
 		}
 		//UFCData.currentParagraphType='';
@@ -357,6 +373,7 @@ function fillRichTextListener(){
 
 	var myIFrame =$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last().contents().find('iframe')	
 	myIFrame.load(function(){
+			console.log('myIFrame.load for '+UFCData.currentParagraphType +' within '+myParagraph.attr('class'));
 			if(myIFrame.contents().find('body').html()!=UFCData.currentParagraphContent){
 				myParagraph.get(0).removeEventListener('DOMSubtreeModified', fillRichTextListener, true);
 				console.log('>>>CONTENTS:'+myIFrame.contents().find('body').html());

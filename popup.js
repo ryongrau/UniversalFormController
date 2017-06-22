@@ -1,6 +1,13 @@
 $( document ).ready(function() {
 	console.log('popup.js active');
 	try{
+		var manifest = chrome.runtime.getManifest();
+		$('#panelTitle').append(manifest.name + ' v.' + manifest.version);
+
+	} catch(err) {
+		console.log(err);
+	}
+	try{
 		var tabCount =0;
 		//var myQueryInfo = new Object();
 		//myQueryInfo.currentWindow=true;
@@ -96,3 +103,26 @@ $( document ).ready(function() {
 		console.log(err);
 	}
 })
+
+chrome.runtime.onMessage.addListener(
+	function(message,sender,sendResponse){
+		try {	
+			switch(message.messageType) {
+				case "downloadImage":
+					alert('popup.js downloadImage : '+message.imageData);
+					sendResponse({message:"popup.js downloadImage done"});
+				break;
+				
+				default:
+					sendResponse({message:"UFC: popup.js unhandled Chrome runtime message"});
+				break;
+
+			}
+		} catch(err) {
+			//alert(err);
+			sendResponse({message:"bkg script err:"+err});
+		}
+	
+
+
+});

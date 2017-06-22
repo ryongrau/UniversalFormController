@@ -29,39 +29,17 @@ UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_p
 //$(document).load( function () {
 $( document ).ready(function() {
     console.log( "UFC 1.24.01 at the ready:"); 
-    console.log( "UFC document.URL:  " + document.URL);//your current page
-	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
+    //console.log( "UFC document.URL:  " + document.URL);//your current page
+	//console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
+	// Set this to *false* to avoid addon auto-installation if missed.
+    FireShotAPI.AutoInstall = false;
 	for (var valuePair in $.url().param()){
 		try {	var UFCFieldType = valuePair.substring(0,7);
 			var UFCFieldID = valuePair.substring(8,valuePair.length);
 			var UFCFieldData=$.url().param(valuePair);
 			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + UFCFieldData);
 			switch(UFCFieldType) {
-				// timestamp takes text, just get the format right
-				case 'ufc-txt':
-					//console.log('>>>>>ufc-txt:'+UFCFieldID+' >>> '+UFCFieldData);
-					$('#'+ UFCFieldID).val(UFCFieldData);
-				break;
 
-				
-				case 'ufc-chk':
-					if(UFCFieldData==='TRUE'){
-						$('#'+ UFCFieldID).prop('checked',true);}
-					else {	$('#'+ UFCFieldID).prop('checked',false);}
-				break;
-
-				case 'ufc-sel':
-					$('#'+ UFCFieldID + ' option[value="' + UFCFieldData + '"]').prop('selected',true);
-				break;
-				
-				// multiselect: important to ADD only-!
-				case 'ufc-msl':
-					for (var toAddToSelections in UFCFieldData.split(',')){
-						//console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + UFCFieldData.split(',')[toAddToSelections]);
-						$('#'+ UFCFieldID + ' option[value="' +  UFCFieldData.split(',')[toAddToSelections] + '"]').prop('selected','selected');
-					}
-				break;
-								
 				//Body Text: hidden iFrame 
 				case 'ufc-bod':
 					console.log('case ufc-bod');
@@ -75,13 +53,42 @@ $( document ).ready(function() {
 					});
 					$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
 				break;
-
-				case 'new-par':
-					console.log('UFCData.tasksToComplete before addNewParagraph('+UFCFieldID+', '+UFCFieldData+')='+UFCData.tasksToComplete);
-					UFCData.tasksToComplete = UFCData.tasksToComplete+1;
-					addNewParagraph(UFCFieldID, UFCFieldData);
+				
+				case 'ufc-chk':
+					if(UFCFieldData==='TRUE'){
+						$('#'+ UFCFieldID).prop('checked',true);}
+					else {	$('#'+ UFCFieldID).prop('checked',false);}
 				break;
-								
+
+				case 'ufc-dlf':// find all associated files related to download revisions (use from )
+					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
+					var revisionCount =-1;
+					revisionCount = $('li :contains(Revisions)').length;
+						console.log('revisionCount: '+revisionCount);		
+					if (UFCFieldData==='fillAndKill'){
+						listFiles();
+						chrome.runtime.sendMessage({messageType:'killTab'},function(response){});
+					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
+						console.log('relocating');
+						window.location.replace('https://'+document.domain+$('li :contains(Revisions)').attr('href')+'?ufc-dlf=redirected');
+					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] === 'revisions') {
+						//console.log('for each revision....');
+						//for each tr: first a link
+						$('.sticky-table').find('tr:gt(0)').find('a:first').each(function(){
+								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-dlf=fillAndKill'
+								console.log('myRevision:'+myRevision);
+								window.open(myRevision)
+						});
+					} else if(revisionCount === 0 && window.location.pathname.split( '/' )[3] === 'workflow') {
+						console.log('go fillAndKill from https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
+						window.location.replace('https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
+					} else {
+						console.log ('else');
+						listFiles();
+					}
+				break;
+
+							
 				//files
 				case 'ufc-fml':// ADD FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
@@ -125,7 +132,7 @@ $( document ).ready(function() {
 					var myMatches = $('#media-browser-library-list tr').length;
 					//alert(myMatches + ' - ' + UFCFieldData);
 					if(myMatches==UFCFieldData){
-						chrome.runtime.sendMessage('killTab',function(response){
+						chrome.runtime.sendMessage({messageType:'killTab'},function(response){
 							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
 					}
@@ -150,67 +157,52 @@ $( document ).ready(function() {
 						myLinkedURL=encodeURI($(this).parent().next().find('a').attr('href'));
 						myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'","NodeId":"'+myLinkedNodeId+'","NodeURL":"'+myLinkedURL+'"}'
         				console.log('updtMRF-'+myLinkAddition);
-        				chrome.runtime.sendMessage('updtMRF-'+myLinkAddition)
+        				chrome.runtime.sendMessage({messageType:'updtMRF',messageData:myLinkAddition})
 					})
 
 				break;
 
-				case 'ufc-dlf':// find all associated files related to download revisions (use from )
-					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
-					var revisionCount =-1;
-					revisionCount = $('li :contains(Revisions)').length;
-						console.log('revisionCount: '+revisionCount);		
-					if (UFCFieldData==='fillAndKill'){
-						listFiles();
-						chrome.runtime.sendMessage('killTab',function(response){});
-					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
-						console.log('relocating');
-						window.location.replace('https://'+document.domain+$('li :contains(Revisions)').attr('href')+'?ufc-dlf=redirected');
-					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] === 'revisions') {
-						//console.log('for each revision....');
-						//for each tr: first a link
-						$('.sticky-table').find('tr:gt(0)').find('a:first').each(function(){
-								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-dlf=fillAndKill'
-								console.log('myRevision:'+myRevision);
-								window.open(myRevision)
-						});
-					} else if(revisionCount === 0 && window.location.pathname.split( '/' )[3] === 'workflow') {
-						console.log('go fillAndKill from https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
-						window.location.replace('https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
-					} else {
-						console.log ('else');
-						listFiles();
+				// multiselect: important to ADD only-!
+				case 'ufc-msl':
+					for (var toAddToSelections in UFCFieldData.split(',')){
+						//console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + UFCFieldData.split(',')[toAddToSelections]);
+						$('#'+ UFCFieldID + ' option[value="' +  UFCFieldData.split(',')[toAddToSelections] + '"]').prop('selected','selected');
 					}
+				break;
+								
+
+				case 'new-par':
+					console.log('UFCData.tasksToComplete before addNewParagraph('+UFCFieldID+', '+UFCFieldData+')='+UFCData.tasksToComplete);
+					UFCData.tasksToComplete = UFCData.tasksToComplete+1;
+					addNewParagraph(UFCFieldID, UFCFieldData);
 				break;
 
-				case 'ufc-trg':// trigger ID
-					var myOffset = $('#'+UFCFieldID ).offset();
-					console.log('Top left of my thing:'+myOffset.left + " : " + myOffset.top );
-					console.log('so imma click here x:'+(myOffset.left+($('#'+UFCFieldID ).width()/2))+ ", y: " + (myOffset.top+($('#'+UFCFieldID ).height()/2)));
-					var event = new MouseEvent(UFCFieldData, {
-						'view': window,
-						'bubbles': true,
-						'cancelable': true
+				// timestamp takes text, just get the format right
+				case 'ufc-scr': // Screenshot
+
+					console.log("About to captureVisibleTabStatus sendMessage");
+					chrome.runtime.sendMessage({messageType:'scrnSht'},function(response){
+						console.log('captureVisibleTab in function: '+response.message);
 					});
-					var  myThing = document.getElementById(UFCFieldID);
-					var cancelled = !myThing.dispatchEvent(event);
-					if (cancelled) {
-					    // A handler called preventDefault.
-						//console.log("cancelled");
-					} else {
-					    // None of the handlers called preventDefault.
-						//console.log("not cancelled");
-					}
-					$('#'+UFCFieldID).parent().children().each(function(){
-						console.log($(this).attr('name'));
-					});
+					console.log('after captureVisibleTab ');
 				break;
+
+				case 'ufc-sel':
+					$('#'+ UFCFieldID + ' option[value="' +  UFCFieldData + '"]').prop('selected','selected');
+				break;
+
+				case 'ufc-txt':
+					$('#'+ UFCFieldID).val(UFCFieldData);
+				break;
+
+
 				default:
-					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
+					console.log("UFC: popup.js unhandled Chrome runtime message");
 				break;
+					
 			}
 		} catch(err) {
-			console.log(err);
+			console.log('error: '+err);
 		}
 	}
 //######### saving and closing 
@@ -338,13 +330,13 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'static-listing':
 				//field_para_sp_heading,field_para_energy_ref_items(10),field_para_energy_ref_title,(media), heading text required, 1st item required {page: 'Visual QA Testing Page (2207053)'}
 				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
-				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Article (2207013)');
+				/*myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Article (2207013)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(1).val('Visual QA Testing Download (2207025)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(2).val('Visual QA Testing Event (2207033)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(3).val('Visual QA Testing External Resource (2207029)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(4).val('Visual QA Testing Download (2207025)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(5).val('Visual QA Testing Page (2207053)');
-				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(6).val('Visual QA Testing Pivot Table (2207065)');
+				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(6).val('Visual QA Testing Pivot Table (2207065)');*/
 			break;
 			case 'multicolumn':
 			break;
@@ -398,7 +390,7 @@ function listFiles() {
 		myMediaLink=encodeURI($(this).attr("href"));
 		myMediaTitle=encodeURI($(this).find('.filename').html());
 		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID:Pending"}'
-		chrome.runtime.sendMessage('updtDLF-'+myLinkAddition)
+		chrome.runtime.sendMessage({messageType:'updtDLF',messageData:myLinkAddition})
 		console.log('chrome.runtime.sendMessage(updtDLF-'+myLinkAddition);
 	})
 }
@@ -424,12 +416,15 @@ chrome.runtime.onMessage.addListener(
 )
 
 function pageClosing(){
-	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	//console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	//console.log("document.referrer.indexOf('ufc-submit-cls=TRUE')="+document.referrer.indexOf('ufc-submit-cls=TRUE'));
 	if(UFCData.tasksToComplete===0){
 		if ($.url().param("killTab") ==='TRUE'){
-			chrome.runtime.sendMessage('killTab',function(response){
+
+			chrome.runtime.sendMessage({messageType:'killTab'},function(response){
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
+
 		}
 
 		if ($.url().param("ufc-submit-cls") ==='TRUE'){
@@ -438,11 +433,14 @@ function pageClosing(){
 		}
 
 		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
-			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
+			console.log('4.) time to go away');
+			chrome.runtime.sendMessage({messageType:"killTab"},function(response){
+				console.log("Response from bkg script: "+ response.responseMessage);
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
 		}
+
+		// ################# SAVE PUBLISH CLOSE  #############################
 
 		if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
 			console.log('1.) click save');
@@ -450,14 +448,17 @@ function pageClosing(){
 		}
 
 		if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
-			window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+			
+			// it all spits you out to "/node/NID/revisions/RID"
+			if (document.URL.indexOf('/revisions/')>-1){
+				window.location.replace(document.URL+'/workflow/immediate%20publish?ufc-sav-pub-cls=pub')
+			} else {
+				window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+			} 
 		}
 
-		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
-			console.log('3 click update state');
-			$('#edit-submit').trigger('click');
-		}
 
+		// edit click >> bypassing direct re publish revision now, I believe..
 		if ($.url().param("ufc-sav-pub-cls") ==='new'){
 			console.log('2 1/2) pub new node');
 
@@ -467,13 +468,23 @@ function pageClosing(){
 			});
 		}
 
+
+		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
+			console.log('3 click update state');
+			$('#edit-submit').trigger('click');
+		}
+
 		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
 			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
-				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+			chrome.runtime.sendMessage({messageType:"killTab"},function(response){
+				console.log('4.) time to go away');
+				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+				console.log('killTab response:'+response.message);
 			});
 		}
-		console.log('pageClosing job done.');
+
+
+		console.log('UFC tasks completed.');
 	}else{
 		//console.log('setTimeout(pageClosing(),(2000));');
 		setTimeout(function(){pageClosing();},(3000));

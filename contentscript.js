@@ -28,7 +28,7 @@ UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_p
 	['table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table','paragraphs-item-type-paragraphs-sp-table']]
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.24.01 at the ready:"); 
+    console.log( "UFC 1.24.02 at the ready:"); 
     //console.log( "UFC document.URL:  " + document.URL);//your current page
 	//console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
 	// Set this to *false* to avoid addon auto-installation if missed.

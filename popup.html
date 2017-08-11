@@ -2,27 +2,18 @@
 <html>
   <head>
     <title>Universal Form Controller</title>
-
-<style>
-	body{
-		min-width:600px;
-	}
-</style>
-  <link href="jquery-ui.1.11.4.min.css" rel="stylesheet" type="text/css">
-<!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+	<link href="jquery-ui.1.11.4.min.css" rel="stylesheet" type="text/css">
+	<link href="popup.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="jquery-1.10.2.min.js"></script>
+	<script src="jquery-ui.1.11.4.min.js"></script>  
+	<script src="popup.js"></script>
+	<!--  JavaScript and HTML must be in separate files: see our Content Security Policy documentation for details and explanation: http://developer.chrome.com/extensions/contentSecurityPolicy.html
      -->
- 
-<script src="jquery-1.10.2.min.js"></script>
-<script src="jquery-ui.1.11.4.min.js"></script>  
-<script src="popup.js"></script>
-  
 </head>  
 <body>
-	<h1>Universal Form Controller</h1>
+	<h1 id="panelTitle">Chrome Extension: </h1>
+	<p><span>Tab-count: </span><span id="tabcount"></span></p>
 	<div id="tabs">
 		<ul>
 			<li><a href="#tabs-1">Options</a></li>
@@ -35,23 +26,29 @@
 				Values need to be in an URL-encoded format.
 				<strong>Example:</strong> ?ufc-txt-edit-title=My Article Title<br />
 				<br />
-				<strong>Current Fields:</strong><br />
-				<strong>ufc-txt</strong>   [url encoded string] Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
-				<strong>ufc-chk</strong>   [TRUE/FALSE] Check Box  <br />
-				<strong>ufc-sel</strong>   [ID] Select<br />
-				<strong>ufc-msl</strong>   [comma delineated IDs] Multiselect- Only ADDS to selection, manual removal if wrong  <br />
-				<strong>ufc-bod</strong>   [HTML string] For Drupal CKeditor Body Text<br />
+				<h2>Current Fields:</h2><br />
+				<i class="fa fa-font"></i><strong>ufc-txt</strong>   [url encoded string] Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
+				<i class="fa fa-check-square-o"></i><strong>ufc-chk</strong>   [TRUE/FALSE] Check Box  <br />
+				<i class="fa fa-bars"></i><strong>ufc-sel</strong>   [ID] Select<br />
+				<i class="fa fa-bars"></i><strong>ufc-msl</strong>   [comma delineated IDs] Multiselect- Only ADDS to selection, manual removal if wrong  <br />
+				<i class="fa fa-font"></i><strong>ufc-bod</strong>   [HTML string] For Drupal CKeditor Body Text<br />
+				<i class="fa fa-mouse-pointer"></i><strong>ufc-trg</strong> [Triggered Event] Trigger Event (i.e. 'click') by DOM id<br/>
+				<i class="fa fa-list"></i><strong>new-par-[type]</strong> AWWWW YEAHHHH BOYYEEE [text, heading, image, list, blockquote, youtube, feature, listing, static-listing, multicolumn, photogallery, table, blockref]<br/>
+
 				<br />
-				<strong>Drupal specific administration/ automation commands:</strong><br />
-				<strong>ufc-fml</strong>   [Local Filepath] File Media Library (Download Node): opens first file to media library; filters on value<br />
-				<strong>ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
-				<strong>ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
-				<strong>ufc-dlf</strong> [TRUE] Populates UFC "Media Referenced By Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow.<br />
-				<strong>ufc-mrf</strong> [TRUE] Add node references in "Nodes referencing Media" tab.  Use on admin/media/ref/* <br/>
+				<h2>Drupal specific administration/ automation commands:</h2><br />
+				<i class="fa fa-exclamation-circle"></i><em> Please note these have not been verified in new design, or available to non-admins. </em> <i class="fa fa-exclamation-circle"></i><br />
+				<i class="fa fa-cogs"></i><strong>ufc-fml</strong>   [Local Filepath] File Media Library (Download Node): opens first file to media library; filters on value<br />
+				<i class="fa fa-cogs"></i><strong>ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
+				<i class="fa fa-cogs"></i><strong>ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
+				<i class="fa fa-cogs"></i><strong>ufc-dlf</strong> [TRUE] Populates UFC "Media Referenced By Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow.<br />
+				<i class="fa fa-cogs"></i><strong>ufc-mrf</strong> [TRUE] Add node references in "Nodes referencing Media" tab.  Use on admin/media/ref/* <br/>
+				
 				<br />
-				<strong>The following commands run only after other fields are filled:</strong><br />
-				<strong>ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
-				<strong>ufc-submit-cls</strong> [TRUE] Will: click submit and close tab<br />
+				<h2>The following commands run only after other fields are filled:</h2><br />
+				<i class="fa fa-cogs"></i><strong>ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
+				<i class="fa fa-cogs"></i><strong>ufc-submit-cls</strong> [TRUE] Will: click submit and close tab<br />
+				
 			</p>
 			<input id='getDemFields' type='submit' value='Get Fillable Fields' />  You'll have to see the results in the console.
 		</div>
@@ -61,11 +58,13 @@
 				<tr>
 					<th>Media Id</th>
 					<th>Node Link</th>
+					<th>Node URL</th>
 					<th>Node Id</th>
 				</tr>
 				<tr>
 					<td>test mediaId</td>
 					<td>test Node Link</td>	
+					<td>test Node URL</td>	
 					<td>test NodeID</td>
 				</tr>
 			</table>	
@@ -78,12 +77,13 @@
 					<th>Node Id/ Revision</th>
 					<th>Media Title</th>
 					<th>Media Link</th>
-
+					<th>Media ID</th>
 				</tr>
 				<tr>
 					<td>test node/revision</td>
 					<td>test related Media title</td>
-					<td>test related Media link</td>		
+					<td>test related Media link</td>
+					<td>test related Media ID</td>		
 				</tr>
 			</table>	
 			<input id='clearLinkedMediaList' type='submit' value='clearLinkedMediaList' /> 

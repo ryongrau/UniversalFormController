@@ -1,8 +1,7 @@
-{
-  	
+{ 	
 	"manifest_version": 2,
 	"name": "Universal Form Controller",
-	"version": "1.21.18",
+	"version": "1.24.02",
 	"description": "A drupal-specific task automation plugin",
 	"web_accessible_resources": ["jquery-1.10.2.min.map","jquery-ui.1.11.4.min.js","purl.js","jquery-ui.1.11.4.min.css"], 
 	"browser_action": {
@@ -16,11 +15,11 @@
 	"content_scripts": [
 		{
 			"matches": ["https://*/*","http://*/*"],
-			"js": ["jquery-1.10.2.min.js","jquery-ui.1.11.4.min.js","purl.js","contentscript.js"]
+			"js": ["jquery-1.10.2.min.js","jquery-ui.1.11.4.min.js","purl.js","contentscript.js","fsapi.js"]
 		}
 	],
 	"permissions": [
-		"storage","tabs","background"
+		"storage","tabs","background","downloads","tabCapture","<all_urls>"
 	],
 	"icons": {
 		"19": "icon.png"

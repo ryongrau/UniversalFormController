@@ -1,3 +1,3 @@
 # UniversalFormController
-an automated form filler plugin for Chrome/ Drupal- \
-Especially to assist in administrative functions
+an automated form filler plugin for Chrome/ Drupal-
+Especially to assist in administrative functions, but very tailored to a specific Drupal instance

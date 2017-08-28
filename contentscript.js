@@ -155,32 +155,32 @@ $( document ).ready(function() {
 
 				break;
 
-				case 'ufc-dlf':// find all associated files related to download revisions (use from )
+				case 'ufc-mrn':// find all associated files related to download revisions (use from )
 					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
-					var revisionCount =-1;
-					revisionCount = $('li :contains(Revisions)').length;
-						console.log('revisionCount: '+revisionCount);		
 					if (UFCFieldData==='fillAndKill'){
-						listFiles();
+						listFiles(UFCFieldData);
 						chrome.runtime.sendMessage('killTab',function(response){});
-					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] !== 'revisions') {
+					} else if (window.location.pathname.split( '/' )[3] !== 'revisions-state-flow-states') {
 						console.log('relocating');
-						window.location.replace('https://'+document.domain+$('li :contains(Revisions)').attr('href')+'?ufc-dlf=redirected');
-					} else if (revisionCount > 0 && window.location.pathname.split( '/' )[3] === 'revisions') {
+						window.location.replace('https://'+document.domain+'/'+window.location.pathname.split( '/' )[1]+'/'+window.location.pathname.split( '/' )[2]+'/revisions-state-flow-states?ufc-mrn='+UFCFieldData);
+					} else if (window.location.pathname.split( '/' )[3] === 'revisions-state-flow-states') {
 						//console.log('for each revision....');
-						//for each tr: first a link
-						$('.sticky-table').find('tr:gt(0)').find('a:first').each(function(){
-								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-dlf=fillAndKill'
-								console.log('myRevision:'+myRevision);
+						$('.view-content .views-field-title a').each(function(){
+								var myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
+								//console.log('myRevision:'+myRevision);
 								window.open(myRevision)
 						});
-					} else if(revisionCount === 0 && window.location.pathname.split( '/' )[3] === 'workflow') {
-						console.log('go fillAndKill from https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
-						window.location.replace('https://'+document.domain+'/node/'+ window.location.pathname.split( '/' )[2] +'?ufc-dlf=fillAndKill');
+						if ($('.pager-next').length>0){
+							window.location.replace('https://'+document.domain+$('.pager-next a').attr('href'));
+						} else if (UFCFieldData==='CLOSE') {
+							chrome.runtime.sendMessage('killTab',function(response){});
+						}
+
 					} else {
 						console.log ('else');
 						listFiles();
 					}
+					
 				break;
 
 				case 'ufc-trg':// trigger ID
@@ -386,21 +386,27 @@ function fillRichTextListener(){
 }
 
 function listFiles() {
-	console.log('function listFiles()');
-	var myMatches = 0;
-	var myLinkedNode = '';
-	myLinkedNode = window.location.pathname;
-	var myMediaLink = '';
-	var myMediaTitle = '';
-	var linkedMediaList='';
-	var myLinkAddition='';
-	$('.field-type-file').find('a').each(function(){
-		myMediaLink=encodeURI($(this).attr("href"));
-		myMediaTitle=encodeURI($(this).find('.filename').html());
-		myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID:Pending"}'
-		chrome.runtime.sendMessage('updtDLF-'+myLinkAddition)
-		console.log('chrome.runtime.sendMessage(updtDLF-'+myLinkAddition);
-	})
+	try {
+		console.log('function listFiles()');
+		var myMatches = 0;
+		var myLinkedNode = '';
+		myLinkedNode = window.location.pathname;
+		var myMediaID = '';
+		var myMediaLink = '';
+		var myMediaTitle = '';
+		var linkedMediaList='';
+		var myLinkAddition='';
+		$('div.content > span.file > a').each(function(){
+			myMediaID=encodeURI($(this).parent().parent().parent().attr('id'));
+			myMediaLink=encodeURI($(this).attr("href"));
+			myMediaTitle=encodeURI($(this).html());
+			myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID":"'+myMediaID+'"}';
+			chrome.runtime.sendMessage('updtmrn-'+myLinkAddition);
+			console.log('chrome.runtime.sendMessage(updtmrn-'+myLinkAddition);
+		})
+	} catch(err) {
+		console.log('function listFiles()'+err);
+	}
 }
 
 // a hook from the popup

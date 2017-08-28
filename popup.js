@@ -1,6 +1,12 @@
 $( document ).ready(function() {
 	console.log('popup.js active');
 	try{
+		$('#popup-header').append(' '+chrome.app.getDetails().version);
+	} catch(err){
+		console.log(err);
+	}
+
+	try{
 		var tabCount =0;
 		//var myQueryInfo = new Object();
 		//myQueryInfo.currentWindow=true;
@@ -38,10 +44,13 @@ $( document ).ready(function() {
 	    });
 
 	    //tab 3
+	    
 	    var linkedMediaList
 		chrome.storage.local.get('linkedMediaList', function (result) {
 			$('#linkedMediaList').find('tr:gt(0)').remove();
 			linkedMediaList = result.linkedMediaList;
+			console.log('linkedMediaList results : '+linkedMediaList);
+			
 			var linkedMediaListJSON=JSON.parse('{ "linkedMediaList" : [' +linkedMediaList +']}');
 			var myRow = ''
 			for(i = 0; i < linkedMediaListJSON.linkedMediaList.length; i++) {
@@ -54,10 +63,14 @@ $( document ).ready(function() {
 		        "</td><td>" +
 		        decodeURI(linkedMediaListJSON.linkedMediaList[i].MediaID) +
 		        "</td></tr>";
-
 			}
+			
+
 			$('#linkedMediaList').append(myRow);
 	    });
+
+
+
 
 		$('#getDemFields').click(function(){
 			//var myText = "getDemFields clicked";
@@ -76,6 +89,7 @@ $( document ).ready(function() {
 			//console.log($(this).attr("ID"));
 			chrome.storage.local.set({'nodeRefList':''},function(){
 				$('#nodeRefList').find('tr:gt(0)').remove();
+				$('#nodeRefList').append('<tr><td>test mediaId</td><td>test Node Link</td><td>test Node URL</td><td>test NodeID</td></tr>');
 				console.log('#clearNodeRefList did its thang:');
 			});
 		});
@@ -84,6 +98,7 @@ $( document ).ready(function() {
 			//console.log($(this).attr("ID"));
 			chrome.storage.local.set({'linkedMediaList':''},function(){
 				$('#linkedMediaList').find('tr:gt(0)').remove();
+				$('#linkedMediaList').append('<tr><td>test node/revision</td><td>test related Media title</td><td>test related Media link</td><td>test related Media ID</td></tr>');
 				console.log('#clearLinkedMediaList did its thang:');
 			});
 		});

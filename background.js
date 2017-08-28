@@ -6,7 +6,7 @@ chrome.runtime.onMessage.addListener(
 			var messageType = message.substring(0,7);
 			var messageContent = message.substring(8,message.length);
 			
-			//alert('background.js-chrome.runtime.onMessage:  ' + messageType + '     : UFC messageContent:' + messageContent);
+			console.log('background.js-chrome.runtime.onMessage:  ' + messageType );
 			switch(messageType) {
 				case "killTab":
 					chrome.tabs.remove(sender.tab.id);
@@ -33,10 +33,9 @@ chrome.runtime.onMessage.addListener(
     				});
 				break;
 
-				case "updtDLF":
+				case "updtmrn":
 					chrome.storage.local.get('linkedMediaList', function (result) {
 						var linkedMediaList = result.linkedMediaList;
-
 						if(linkedMediaList===''){
 							linkedMediaList = messageContent;
 						} else {
@@ -44,9 +43,9 @@ chrome.runtime.onMessage.addListener(
 						};
 						chrome.storage.local.set({'linkedMediaList': linkedMediaList }, function() {
 						});
-						//alert("updtDLF: chrome.storage.local.set: linkedMediaList: "+linkedMediaList);
+						console.log("updtmrn: chrome.storage.local.set: linkedMediaList item count: "+linkedMediaList.split(',').length);
 					});
-					//sendResponse({'message':'UFC: updtDLF completed in background.','senderTabId':sender.tab.id});
+					//sendResponse({'message':'UFC: updtmrn completed in background.','senderTabId':sender.tab.id});
 				break;
 
 				default:

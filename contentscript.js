@@ -164,24 +164,20 @@ $( document ).ready(function() {
 						console.log('relocating');
 						window.location.replace('https://'+document.domain+'/'+window.location.pathname.split( '/' )[1]+'/'+window.location.pathname.split( '/' )[2]+'/workflow?ufc-mrn='+UFCFieldData);
 					} else if (window.location.pathname.split( '/' )[3] === 'workflow') {
-						//console.log('for each revision....');
-						//$('.view-content .views-field-title a').each(function(){
 						var myRevision = 'https://'+document.domain+'/node/'+window.location.pathname.split( '/' )[2]+'?ufc-mrn=fillAndKill';
 						var isPublished = $('div.region.region-content fieldset:first-child div.form-item.form-type-item:first-child').html().includes('Published (published)');
 						if (isPublished){
-							//window.open(myRevision)
+							window.open(myRevision)
 							console.log('open published Node:'+myRevision);
 						} else {
 							console.log('unpublished has all revisions in drafts');
 						}
-
-
 						$('div.region.region-content tr td:last-child a:first-child').each(function(){
 							if ($(this).attr('href').split( '/' )[1] === 'node'){
-								myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
 								//filter to /node/ links, and add node/1234?ufc-mrn=fillAndKill'
+								myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
 								console.log('open myRevision:'+myRevision);
-								//window.open(myRevision)
+								window.open(myRevision)
 							}
 						});
 						if ($('.pager-next').length>0){
@@ -189,7 +185,6 @@ $( document ).ready(function() {
 						} else if (UFCFieldData==='CLOSE') {
 							chrome.runtime.sendMessage('killTab',function(response){});
 						}
-
 					} else {
 						console.log ('else');
 						listFiles();

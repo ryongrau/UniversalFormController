@@ -125,7 +125,7 @@ $( document ).ready(function() {
 					var myMatches = $('#media-browser-library-list tr').length;
 					//alert(myMatches + ' - ' + UFCFieldData);
 					if(myMatches==UFCFieldData){
-						chrome.runtime.sendMessage('killTab',function(response){
+						chrome.runtime.sendMessage({greeting:'killTab'},function(response){
 							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
 					}
@@ -150,7 +150,7 @@ $( document ).ready(function() {
 						myLinkedURL=encodeURI($(this).parent().next().find('a').attr('href'));
 						myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'","NodeId":"'+myLinkedNodeId+'","NodeURL":"'+myLinkedURL+'"}'
         				console.log('updtMRF-'+myLinkAddition);
-        				chrome.runtime.sendMessage('updtMRF-'+myLinkAddition)
+        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition})
 					})
 
 				break;
@@ -159,7 +159,7 @@ $( document ).ready(function() {
 					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
 					if (UFCFieldData==='fillAndKill'){
 						listFiles(UFCFieldData);
-						chrome.runtime.sendMessage('killTab',function(response){});
+						chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
 					} else if (window.location.pathname.split( '/' )[3] !== 'workflow') {
 						console.log('relocating');
 						window.location.replace('https://'+document.domain+'/'+window.location.pathname.split( '/' )[1]+'/'+window.location.pathname.split( '/' )[2]+'/workflow?ufc-mrn='+UFCFieldData);
@@ -183,7 +183,7 @@ $( document ).ready(function() {
 						if ($('.pager-next').length>0){
 							window.location.replace('https://'+document.domain+$('.pager-next a').attr('href'));
 						} else if (UFCFieldData==='CLOSE') {
-							chrome.runtime.sendMessage('killTab',function(response){});
+							chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
 						}
 					} else {
 						console.log ('else');
@@ -410,8 +410,8 @@ function listFiles() {
 			myMediaLink=encodeURI($(this).attr("href"));
 			myMediaTitle=encodeURI($(this).html());
 			myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID":"'+myMediaID+'"}';
-			chrome.runtime.sendMessage('updtmrn-'+myLinkAddition);
-			console.log('chrome.runtime.sendMessage(updtmrn-'+myLinkAddition);
+			chrome.runtime.sendMessage({greeting : 'updtmrn', content : myLinkAddition});
+			console.log("'chrome.runtime.sendMessage({greeting : 'updtmrn', content : "+myLinkAddition+"}");
 		})
 	} catch(err) {
 		console.log('function listFiles()'+err);
@@ -421,16 +421,16 @@ function listFiles() {
 // a hook from the popup
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		console.log('I heard something.');
-		console.log('I heard something, and it was: ' + request.greeting);
 		if(request.greeting === "getDemFields"){
-			var myFields = 'I found these fields: '
+			console.log('getDemFields activated by: ' + request.greeting);
+
+			var myFields = '<tr><th>Field Id</th><th>Field Type</th></tr>'
 			$('#page').find('input, select').each(
 				function(){
-					myFields = myFields + '\n' + $(this).attr('id') + '\t' + $(this).attr('type')
+					myFields = myFields + '<tr><td>' + $(this).attr('id') + '</td><td>' + $(this).attr('type') + '</td></tr>'
 				}
 			)
-			console.log(myFields);
+			sendResponse({'myFields': myFields});
 		} else {
 			console.log('unknown request :' );
 		}
@@ -442,7 +442,7 @@ function pageClosing(){
 	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
 	if(UFCData.tasksToComplete===0){
 		if ($.url().param("killTab") ==='TRUE'){
-			chrome.runtime.sendMessage('killTab',function(response){
+			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
 		}
@@ -454,7 +454,7 @@ function pageClosing(){
 
 		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
 			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
+			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
 		}
@@ -484,7 +484,7 @@ function pageClosing(){
 
 		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
 			//console.log('4.) time to go away');
-			chrome.runtime.sendMessage('killTab',function(response){
+			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
 				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
 		}

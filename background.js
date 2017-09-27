@@ -3,8 +3,8 @@ chrome.runtime.sendMessage('hello from the background');
 chrome.runtime.onMessage.addListener(
 	function(message,sender,sendResponse){
 		try {	
-			var messageType = message.substring(0,7);
-			var messageContent = message.substring(8,message.length);
+			var messageType = message.greeting;
+			var messageContent = message.content;
 			
 			console.log('background.js-chrome.runtime.onMessage:  ' + messageType );
 			switch(messageType) {
@@ -36,6 +36,7 @@ chrome.runtime.onMessage.addListener(
 				case "updtmrn":
 					chrome.storage.local.get('linkedMediaList', function (result) {
 						var linkedMediaList = result.linkedMediaList;
+						//  look for the file ID, if its not there, add new line, else array it, add in 
 						if(linkedMediaList===''){
 							linkedMediaList = messageContent;
 						} else {
@@ -47,6 +48,22 @@ chrome.runtime.onMessage.addListener(
 					});
 					//sendResponse({'message':'UFC: updtmrn completed in background.','senderTabId':sender.tab.id});
 				break;
+
+				case "auto-list-upload":
+					chrome.storage.local.get('automationList', function (result) {
+						var automationList = result.automationList;
+						if(automationList===''){
+							automationList = messageContent;
+						} else {
+							automationList = automationList + messageContent;
+						};
+						chrome.storage.local.set({'automationList': automationList }, function() {
+						});
+						console.log("updtmrn: chrome.storage.local.set: automationList item count: "+automationList.split(',').length);
+					});
+					sendResponse({'message':'UFC: automationList completed in background.'});
+				break;
+
 
 				default:
 					sendResponse({'message':'UFC: unhandled Chrome runtime message','senderTabId':sender.tab.id});

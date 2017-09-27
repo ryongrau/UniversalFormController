@@ -43,6 +43,15 @@ $( document ).ready(function() {
 			$('#nodeRefList').append(myRow);
 	    });
 
+	    $('#clearNodeRefList').click(function(){
+			//console.log($(this).attr("ID"));
+			chrome.storage.local.set({'nodeRefList':''},function(){
+				$('#nodeRefList').find('tr:gt(0)').remove();
+				$('#nodeRefList').append('<tr><td>test mediaId</td><td>test Node Link</td><td>test Node URL</td><td>test NodeID</td></tr>');
+				console.log('#clearNodeRefList did its thang:');
+			});
+		});
+
 	    //tab 3
 	    
 	    var linkedMediaList
@@ -69,8 +78,16 @@ $( document ).ready(function() {
 			$('#linkedMediaList').append(myRow);
 	    });
 
+	    $('#clearLinkedMediaList').click(function(){
+			//console.log($(this).attr("ID"));
+			chrome.storage.local.set({'linkedMediaList':''},function(){
+				$('#linkedMediaList').find('tr:gt(0)').remove();
+				$('#linkedMediaList').append('<tr><td>test node/revision</td><td>test related Media title</td><td>test related Media link</td><td>test related Media ID</td></tr>');
+				console.log('#clearLinkedMediaList did its thang:');
+			});
+		});
 
-
+		// tab 4
 
 		$('#getDemFields').click(function(){
 			//var myText = "getDemFields clicked";
@@ -79,27 +96,60 @@ $( document ).ready(function() {
 					tabs[0].id,
 					{greeting: "getDemFields"},
 					function(response) {
-						console.log('contentscript returned ' + response.farewell);
+						console.log('page contentscript returned ' + response.farewell);
+						$('#FieldList').html(response.myFields);
+
 					}
 				);
 			});
 		});
 
-		$('#clearNodeRefList').click(function(){
-			//console.log($(this).attr("ID"));
-			chrome.storage.local.set({'nodeRefList':''},function(){
-				$('#nodeRefList').find('tr:gt(0)').remove();
-				$('#nodeRefList').append('<tr><td>test mediaId</td><td>test Node Link</td><td>test Node URL</td><td>test NodeID</td></tr>');
-				console.log('#clearNodeRefList did its thang:');
-			});
+		//tab 5
+
+		var automationListResult
+		chrome.storage.local.get('automationList', function (result) {
+			$('#autoListTable').find('tr:gt(0)').remove();
+			automationListResult = result.automationList;
+			console.log('automationListResult : '+automationListResult);
+			var automationListResultJSON=JSON.parse('{ "automationListResult" : [' +automationListResult+']}');
+			console.log( 'Number of Queued Items:' + automationListResultJSON.automationListResult.length );
+			var myTableContent = ''
+			for(i = 0; i < automationListResultJSON.automationListResult.length; i++) {
+				myTableContent += "<tr><td>" +
+		        decodeURI(automationListResultJSON.automationListResult[i].Link) +
+		        "</td><td>" +
+		        automationListResultJSON.automationListResult[i].Status +
+		        "</td></tr>";
+			}
+			$('#autoListTable').html(myTableContent);
+			
+	    });		
+
+		$('#auto-list-upload').click(function(){
+			var urlItems = $('#auto-list-text').val().split('\n');
+			//var autoListUpload='{"Link":"URL","Status":"Testing"}';
+			var autoListUpload='';
+
+			//var numToQueue=urlItems.length;
+			console.log( 'Number of Items to upload:' + urlItems.length );
+			for(i=0; i<urlItems.length; i++){
+				autoListUpload=autoListUpload + ',{"Link" : "' + urlItems[i] + '","Status" : "New"}'
+			}
+			console.log('this is what we sending:'+autoListUpload);
+			chrome.runtime.sendMessage(
+				{greeting : "auto-list-upload", content : autoListUpload},
+				function(response) {
+					console.log('#auto-list-upload Background? returned:  ' + response.message);
+				}
+			);
 		});
 
-		$('#clearLinkedMediaList').click(function(){
+		$('#auto-reset').click(function(){
 			//console.log($(this).attr("ID"));
-			chrome.storage.local.set({'linkedMediaList':''},function(){
-				$('#linkedMediaList').find('tr:gt(0)').remove();
-				$('#linkedMediaList').append('<tr><td>test node/revision</td><td>test related Media title</td><td>test related Media link</td><td>test related Media ID</td></tr>');
-				console.log('#clearLinkedMediaList did its thang:');
+			chrome.storage.local.set({'automationList':'{"Link":"none","Status":"n/a"}'},function(){
+				$('#autoListTable').find('tr:gt(0)').remove();
+				$('#autoListTable').html('<tr><th>Link</th><th>Status</th></tr><tr><td>reset clicked</td><td><span class="fa fa-times">reset clicked</span></td></tr>');
+				console.log('#auto-reset did its thang:');
 			});
 		});
 

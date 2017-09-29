@@ -106,24 +106,11 @@ $( document ).ready(function() {
 
 		//tab 5
 
-		var automationListResult
-		chrome.storage.local.get('automationList', function (result) {
-			$('#autoListTable').find('tr:gt(0)').remove();
-			automationListResult = result.automationList;
-			console.log('automationListResult : '+automationListResult);
-			var automationListResultJSON=JSON.parse('{ "automationListResult" : [' +automationListResult+']}');
-			console.log( 'Number of Queued Items:' + automationListResultJSON.automationListResult.length );
-			var myTableContent = ''
-			for(i = 0; i < automationListResultJSON.automationListResult.length; i++) {
-				myTableContent += "<tr><td>" +
-		        decodeURI(automationListResultJSON.automationListResult[i].Link) +
-		        "</td><td>" +
-		        automationListResultJSON.automationListResult[i].Status +
-		        "</td></tr>";
-			}
-			$('#autoListTable').html(myTableContent);
-			
-	    });		
+		if(chrome.storage.local.automationStatus==='1'){
+			$('#auto-start,#auto-list-upload,#auto-reset').prop('disabled',true);
+		};
+
+		updateAutomationList();
 
 		$('#auto-list-upload').click(function(){
 			var urlItems = $('#auto-list-text').val().split('\n');
@@ -131,25 +118,51 @@ $( document ).ready(function() {
 			var autoListUpload='';
 
 			//var numToQueue=urlItems.length;
-			console.log( 'Number of Items to upload:' + urlItems.length );
+			console.log( 'auto-list-upload Number of Items to upload:' + urlItems.length );
 			for(i=0; i<urlItems.length; i++){
-				autoListUpload=autoListUpload + ',{"Link" : "' + urlItems[i] + '","Status" : "New"}'
+				if(i===0){
+					autoListUpload='{"Link" : "' + urlItems[i] + '","Status" : "New"}';
+				} else {
+					autoListUpload=autoListUpload + ',{"Link" : "' + urlItems[i] + '","Status" : "New"}';
+				}
 			}
-			console.log('this is what we sending:'+autoListUpload);
+			console.log('auto-list-upload autoListUpload:'+autoListUpload);
 			chrome.runtime.sendMessage(
 				{greeting : "auto-list-upload", content : autoListUpload},
 				function(response) {
+					updateAutomationList();
 					console.log('#auto-list-upload Background? returned:  ' + response.message);
 				}
 			);
 		});
 
+		$('#auto-start').click(function(){
+			$('#auto-start,#auto-list-upload,#auto-reset').prop('disabled',true);
+			chrome.runtime.sendMessage(
+				{greeting : "auto-start"},
+				function(response) {
+					console.log('#auto-start message: ' + response.message);
+				}
+			);	
+		});
+
+		$('#auto-stop').click(function(){
+			$('#auto-start,#auto-list-upload,#auto-reset').prop('disabled',false);
+			chrome.runtime.sendMessage(
+				{greeting : "auto-stop"},
+				function(response) {
+					updateAutomationList();
+					console.log('#auto-stop message: ' + response.message);
+				}
+			);	
+		});
+
 		$('#auto-reset').click(function(){
 			//console.log($(this).attr("ID"));
-			chrome.storage.local.set({'automationList':'{"Link":"none","Status":"n/a"}'},function(){
+			chrome.storage.local.set({'automationList':''},function(){
 				$('#autoListTable').find('tr:gt(0)').remove();
 				$('#autoListTable').html('<tr><th>Link</th><th>Status</th></tr><tr><td>reset clicked</td><td><span class="fa fa-times">reset clicked</span></td></tr>');
-				console.log('#auto-reset did its thang:');
+				console.log('#auto-reset');
 			});
 		});
 
@@ -161,3 +174,27 @@ $( document ).ready(function() {
 		console.log(err);
 	}
 })
+
+function updateAutomationList() {
+	try{
+		var automationListResult
+		chrome.storage.local.get('automationList', function (result) {
+			$('#autoListTable').find('tr:gt(0)').remove();
+			automationListResult = result.automationList;
+			console.log('automationListResult : '+automationListResult);
+			var automationListResultJSON=JSON.parse('{ "automationListResult" : [' +automationListResult+']}');
+			console.log( 'Number of Queued Items:' + automationListResultJSON.automationListResult.length );
+			var myTableContent = '<tr><th>Link</th><th>Status</th></tr>'
+			for(i = 0; i < automationListResultJSON.automationListResult.length; i++) {
+				myTableContent += "<tr><td>" +
+		        decodeURI(automationListResultJSON.automationListResult[i].Link) +
+		        "</td><td>" +
+		        automationListResultJSON.automationListResult[i].Status +
+		        "</td></tr>";
+			}
+			$('#autoListTable').html(myTableContent);
+	    });		
+	} catch(err){
+		console.log('updateAutomationList error: '+err);
+	}
+}

@@ -167,8 +167,14 @@ $( document ).ready(function() {
 						var myRevision = 'https://'+document.domain+'/node/'+window.location.pathname.split( '/' )[2]+'?ufc-mrn=fillAndKill';
 						var isPublished = $('div.region.region-content fieldset:first-child div.form-item.form-type-item:first-child').html().includes('Published (published)');
 						if (isPublished){
-							window.open(myRevision)
-							console.log('open published Node:'+myRevision);
+							//window.open(myRevision)
+							chrome.tabs.create(
+								{url:myRevision,active:false}, 
+								function(tab){
+									console.log('open published Node:'+myRevision);
+								}
+							);
+							
 						} else {
 							console.log('unpublished has all revisions in drafts');
 						}
@@ -176,8 +182,13 @@ $( document ).ready(function() {
 							if ($(this).attr('href').split( '/' )[1] === 'node'){
 								//filter to /node/ links, and add node/1234?ufc-mrn=fillAndKill'
 								myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
-								console.log('open myRevision:'+myRevision);
-								window.open(myRevision)
+								//window.open(myRevision)
+								chrome.tabs.create(
+									{url:myRevision,active:false}, 
+									function(tab){
+										console.log('open myRevision:'+myRevision);
+									}
+								);
 							}
 						});
 						if ($('.pager-next').length>0){

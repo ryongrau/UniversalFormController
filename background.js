@@ -64,6 +64,19 @@ chrome.runtime.onMessage.addListener(
 					sendResponse({'message':'auto-list-upload: automationList completed in background.'});
 				break;
 
+				case "createTab":
+					var myUrl=message.url;
+					var myActive=message.active;
+					chrome.tabs.create(
+						{url:myUrl,active:myActive}, 
+						function(tab){
+							console.log('open Tab for myUrl:'+myUrl);
+							sendResponse({'message':'"Created Tab for '+myUrl+'"'});
+						}
+					);
+
+				break;
+
 				case "auto-start":
 					chrome.storage.local.currentlyActiveTabs='';
 					chrome.storage.local.currentlyActiveTabCount=0;

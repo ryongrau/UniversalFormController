@@ -166,14 +166,12 @@ $( document ).ready(function() {
 					} else if (window.location.pathname.split( '/' )[3] === 'workflow') {
 						var myRevision = 'https://'+document.domain+'/node/'+window.location.pathname.split( '/' )[2]+'?ufc-mrn=fillAndKill';
 						var isPublished = $('div.region.region-content fieldset:first-child div.form-item.form-type-item:first-child').html().includes('Published (published)');
+						console.log('myRevision:'+myRevision);
 						if (isPublished){
 							//window.open(myRevision)
-							chrome.tabs.create(
-								{url:myRevision,active:false}, 
-								function(tab){
-									console.log('open published Node:'+myRevision);
-								}
-							);
+							chrome.runtime.sendMessage({greeting:'createTab',url:myRevision,active:true},function(response){
+								console.log('Create Tab:'+response.message);
+							});
 							
 						} else {
 							console.log('unpublished has all revisions in drafts');
@@ -183,12 +181,9 @@ $( document ).ready(function() {
 								//filter to /node/ links, and add node/1234?ufc-mrn=fillAndKill'
 								myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
 								//window.open(myRevision)
-								chrome.tabs.create(
-									{url:myRevision,active:false}, 
-									function(tab){
-										console.log('open myRevision:'+myRevision);
-									}
-								);
+							chrome.runtime.sendMessage({greeting:'createTab',url:myRevision,active:true},function(response){
+									console.log('Create Tab:'+response.message);
+								});
 							}
 						});
 						if ($('.pager-next').length>0){

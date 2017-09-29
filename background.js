@@ -80,9 +80,12 @@ chrome.runtime.onMessage.addListener(
 				case "auto-start":
 					chrome.storage.local.currentlyActiveTabs='';
 					chrome.storage.local.currentlyActiveTabCount=0;
-					chrome.storage.local.concurrentAutomationsAllowed=1;
-					runNextTabInQueue ('auto-start');
-					sendResponse({'message':'automation starting in background.'});
+					chrome.storage.local.concurrentAutomationsAllowed= message.setConcurrentAutomationsAllowed;
+					console.log('chrome.storage.local.concurrentAutomationsAllowed:'+chrome.storage.local.concurrentAutomationsAllowed);
+					for (i=0;i<chrome.storage.local.concurrentAutomationsAllowed;i++){
+						runNextTabInQueue ('auto-start');
+					}
+					sendResponse({'message':'automation starting in background for '+chrome.storage.local.concurrentAutomationsAllowed+' tabs'});
 
 				break;
 

@@ -138,8 +138,10 @@ $( document ).ready(function() {
 
 		$('#auto-start').click(function(){
 			$('#auto-start,#auto-list-upload,#auto-reset').prop('disabled',true);
+			var concurrentAutomationsAllowed=$('#sel-concurrent').val();
+			console.log('chrome.storage.local.concurrentAutomationsAllowed:'+concurrentAutomationsAllowed);
 			chrome.runtime.sendMessage(
-				{greeting : "auto-start"},
+				{greeting : "auto-start", setConcurrentAutomationsAllowed : concurrentAutomationsAllowed},
 				function(response) {
 					console.log('#auto-start message: ' + response.message);
 				}

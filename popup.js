@@ -23,20 +23,22 @@ $( document ).ready(function() {
 		$( "#tabs" ).tabs();
 		//tab 2
 		var nodeRefList
+
 		chrome.storage.local.get('nodeRefList', function (result) {
+			//{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
 			$('#nodeRefList').find('tr:gt(0)').remove();
 			nodeRefList = result.nodeRefList;
 			var linkedNodesJSON=JSON.parse('{ "nodeRefList" : [' +nodeRefList +']}');
 			var myRow = ''
 			for(i = 0; i < linkedNodesJSON.nodeRefList.length; i++) {
 				myRow += "<tr><td>" +
-		        linkedNodesJSON.nodeRefList[i].MediaID +
+		        linkedNodesJSON.nodeRefList[i].FileID +
 		        "</td><td>" +
-		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeRef) +
+		        decodeURI(linkedNodesJSON.nodeRefList[i].FileName) +
 		        "</td><td>" +
-		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeURL) +
+		        decodeURI(linkedNodesJSON.nodeRefList[i].LinkedTitle) +
 		        "</td><td>" +
-		        decodeURI(linkedNodesJSON.nodeRefList[i].NodeId) +
+		        decodeURI(linkedNodesJSON.nodeRefList[i].LinkedURL) +
 		        "</td></tr>"
 		        ;
 			}
@@ -47,7 +49,7 @@ $( document ).ready(function() {
 			//console.log($(this).attr("ID"));
 			chrome.storage.local.set({'nodeRefList':''},function(){
 				$('#nodeRefList').find('tr:gt(0)').remove();
-				$('#nodeRefList').append('<tr><td>test mediaId</td><td>test Node Link</td><td>test Node URL</td><td>test NodeID</td></tr>');
+				$('#nodeRefList').append('<tr><td>FileID</td><td>FileName</td><td>LinkedTitle</td><td>LinkedURL</td></tr>');
 				console.log('#clearNodeRefList did its thang:');
 			});
 		});
@@ -59,7 +61,7 @@ $( document ).ready(function() {
 			$('#linkedMediaList').find('tr:gt(0)').remove();
 			linkedMediaList = result.linkedMediaList;
 			console.log('linkedMediaList results : '+linkedMediaList);
-			
+			//
 			var linkedMediaListJSON=JSON.parse('{ "linkedMediaList" : [' +linkedMediaList +']}');
 			var myRow = ''
 			for(i = 0; i < linkedMediaListJSON.linkedMediaList.length; i++) {

@@ -131,28 +131,40 @@ $( document ).ready(function() {
 					}
 				break;
 				
-				case 'ufc-mrf'://LIST MEDIA REFERENCES IN ufc
-					//console.log('window.location.pathname:'+window.location.pathname);
+				case 'ufc-mrf'://List nodes that reference the file
+					console.log('ufc-mrf');
 					var myMatches = 0;
-					var myLinkedNode = '';
-					var myLinkedMediaId = '';
+					var myFileID = '';
+					var myFileName = '';
 					var myLinkedURL='';
-					var myLinkedNodeId = '';
-					myLinkedMediaId = window.location.pathname.split( '/' )[4];
-					//console.log('myLinkedMediaId:'+myLinkedMediaId);
+					var myLinkedTitle='';
+					myFileID = document.URL.split( '/' )[4];
+					myFileName = encodeURI($('h1.page-title').html());
+					console.log('myFileID:'+myFileID+'  myFileName:'+myFileName);
 					var myLinkAddition='';
-					$('#content').find('h3 :contains(node)').each(function(){
-						//console.log('ref by : '+$(this).parent().next().html() );
+					console.log("$('#content tr:contains(paragraphs_item)').length: "+$('#content tr:contains(paragraphs_item)').length);
+					$('#content tr:contains(node)').each(function(){
+					//$('#content').find('tr :contains(node)').parent().children(':eq(0)').find('a').each(function(){
 						myMatches+=1;
-						myLinkedNode=encodeURI($(this).parent().next().html());
-						myLinkedNodeId=encodeURI($(this).parent().next().html().split('(')[$(this).parent().next().html().split('(').length-1]);
-						myLinkedNodeId=myLinkedNodeId.substring(7,(myLinkedNodeId.length-1));
-						myLinkedURL=encodeURI($(this).parent().next().find('a').attr('href'));
-						myLinkAddition='{"MediaID":"'+myLinkedMediaId+'","NodeRef":"'+myLinkedNode+'","NodeId":"'+myLinkedNodeId+'","NodeURL":"'+myLinkedURL+'"}'
+						myLinkedURL=encodeURI($(this).find('a:first').attr('href'));
+						myLinkedTitle=encodeURI($(this).find('a:first').html());
+						console.log('myLinkedURL:'+myLinkedURL+'   myLinkedTitle:'+myLinkedTitle);
+						myLinkAddition='{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
         				console.log('updtMRF-'+myLinkAddition);
-        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition})
+        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
 					})
-
+					$('#content tr:contains(paragraphs_item):first').each(function(){
+						myMatches+=1;
+						myLinkedURL='';
+						myLinkedTitle=encodeURI('paragraphs: '+$('#content tr:contains(paragraphs_item)').length);
+						console.log('myLinkedURL:'+myLinkedURL+'   myLinkedTitle:'+myLinkedTitle);
+						myLinkAddition='{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
+        				console.log('updtMRF-'+myLinkAddition);
+        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
+					})
+					if (UFCFieldData==='CLOSE') {
+							chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
+					}
 				break;
 
 				case 'ufc-mrn':// find all associated files related to download revisions (use from )

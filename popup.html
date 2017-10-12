@@ -56,7 +56,7 @@
 				<strong class="fa fa-file-o"> ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
 				<strong class="fa fa-file-o"> ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
 				<strong class="fa fa-file-o"> ufc-mrn</strong> [OPEN/CLOSE] Populates UFC "Media Referenced by Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow. Selection determines what happens to tab @ end<br />
-				<strong class="fa fa-file-o"> ufc-mrf</strong> [TRUE] Add node references in "Nodes referencing Media" tab.  Use on admin/media/ref/* <br/>
+				<strong class="fa fa-file-o"> ufc-mrf</strong> [OPEN/CLOSE] List nodes in 'Nodes Referenceing Media' table that reference the file, only woks  on File Usage (/file/[file_Id]/usage) <br/>
 				<strong class="fa fa-mouse-pointer"> ufc-trg</strong> [Triggered Event] Trigger Event (i.e. 'click') by node id<br/>
 				<strong class="fa fa-indent"> new-par-[type]</strong> AWWWW YEAHHHH BOYYEEE [text, heading, image, list, blockquote, youtube, feature, listing, static-listing, multicolumn, photogallery, table, blockref]<br/>
 				<br />
@@ -69,16 +69,16 @@
 		<div id="tabs-2">
 			<table id="nodeRefList">
 				<tr>
-					<th>Media Id</th>
-					<th>Node Link</th>
-					<th>Node URL</th>
-					<th>Node Id</th>
+					<th>FileID</th>
+					<th>FileName</th>
+					<th>LinkedTitle</th>
+					<th>LinkedURL</th>
 				</tr>
 				<tr>
-					<td>test mediaId</td>
-					<td>test Node Link</td>	
-					<td>test Node URL</td>	
-					<td>test NodeID</td>
+					<td>test FileID</td>
+					<td>test FileName</td>	
+					<td>test LinkedTitle</td>	
+					<td>test LinkedURL</td>
 				</tr>
 			</table>	
 			<input id='clearNodeRefList' type='submit' value='Clear Nodes Referenced by Media List' /> 

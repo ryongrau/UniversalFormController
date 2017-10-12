@@ -5,10 +5,17 @@
 
 <style>
 	body{
-		min-width:600px;
+		min-width:750px;
+	}
+	table {
+		width:75%;
+	}
+	td {
+		overflow: hidden;
 	}
 </style>
   <link href="jquery-ui.1.11.4.min.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <!--
       - JavaScript and HTML must be in separate files: see our Content Security
       - Policy documentation[1] for details and explanation.
@@ -26,10 +33,11 @@
 	<p><span>Tab-count: </span><span id="tabcount"></span></p>
 	<div id="tabs">
 		<ul>
-			<li><a href="#tabs-1">Options</a></li>
-			<li><a href="#tabs-2">Nodes Referencing Media</a></li>
-			<li><a href="#tabs-3">Media Referenced by Node</a></li>
-			<li><a href="#tabs-4">Fillable Fields</a></li>
+			<li><a href="#tabs-1" class="fa fa-info-circle"> Options</a></li>
+			<li><a href="#tabs-2" class="fa fa-file-o"> Nodes Referencing Media</a></li>
+			<li><a href="#tabs-3" class="fa fa-file-o"> Media Referenced by Node</a></li>
+			<li><a href="#tabs-4" class="fa fa-code"> Fillable Fields</a></li>
+			<li><a href="#tabs-5" class="fa fa-cog"> Automation</a></li>
 		</ul>
 		<div id="tabs-1">
 			<p>This plugin allows forms to be filled via the querystring, in the format [UFC field type]-[field ID] = [value];<br />
@@ -37,45 +45,43 @@
 				<strong>Example:</strong> ?ufc-txt-edit-title=My Article Title<br />
 				<br />
 				<strong>Current Fields:</strong><br />
-				<strong>ufc-txt</strong>   [url encoded string] Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
-				<strong>ufc-chk</strong>   [TRUE/FALSE] Check Box  <br />
-				<strong>ufc-sel</strong>   [ID] Select<br />
-				<strong>ufc-msl</strong>   [comma delineated IDs] Multiselect- Only ADDS to selection, manual removal if wrong  <br />
-				<strong>ufc-bod</strong>   [HTML string] For Drupal CKeditor Body Text<br />
+				<strong class="fa fa-font"> ufc-txt</strong>   [url encoded string] Text Fields: Title, Summary, block, contributor- NOT Body Text!<br />
+				<strong class="fa fa-check-square-o"> ufc-chk</strong>   [TRUE/FALSE] Check Box  <br />
+				<strong class="fa fa-list-ul"> ufc-sel</strong>   [ID] Select<br />
+				<strong class="fa fa-list-ul"> ufc-msl</strong>   [comma delineated IDs] Multiselect- Only ADDS to selection, manual removal if wrong  <br />
+				<strong class="fa fa-font"> ufc-bod</strong>   [HTML string] For Drupal CKeditor Body Text<br />
 				<br />
 				<strong>Drupal specific administration/ automation commands:</strong><br />
-				<strong>ufc-fml</strong>   [Local Filepath] File Media Library (Download Node): opens first file to media library; filters on value<br />
-				<strong>ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
-				<strong>ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
-				<strong>ufc-mrn</strong> [OPEN/CLOSE] Populates UFC "Media Referenced by Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow. Selection determines what happens to tab @ end<br />
-				<strong>ufc-mrf</strong> [TRUE] Add node references in "Nodes referencing Media" tab.  Use on admin/media/ref/* <br/>
-				<strong>ufc-trg</strong> [Triggered Event] Trigger Event (i.e. 'click') by node id<br/>
-				<strong>new-par-[type]</strong> AWWWW YEAHHHH BOYYEEE [text, heading, image, list, blockquote, youtube, feature, listing, static-listing, multicolumn, photogallery, table, blockref]<br/>
+				<strong class="fa fa-file-o"> ufc-fml</strong>   [Local Filepath] File Media Library (Download Node): opens first file to media library; filters on value<br />
+				<strong class="fa fa-file-o"> ufc-fup</strong>   [Filename Search String] File Upload (Download Node) opens file media browser, with filename placed in a panel to copy/paste into upload<br />
+				<strong class="fa fa-file-o"> ufc-mdc</strong>   [expected Number of items] UFC-Media Check- check the number of matching media expected against count of media found, closes tab if match.  Use on Media Browser List.<br />
+				<strong class="fa fa-file-o"> ufc-mrn</strong> [OPEN/CLOSE] Populates UFC "Media Referenced by Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow. Selection determines what happens to tab @ end<br />
+				<strong class="fa fa-file-o"> ufc-mrf</strong> [OPEN/CLOSE] List nodes in 'Nodes Referenceing Media' table that reference the file, only woks  on File Usage (/file/[file_Id]/usage) <br/>
+				<strong class="fa fa-mouse-pointer"> ufc-trg</strong> [Triggered Event] Trigger Event (i.e. 'click') by node id<br/>
+				<strong class="fa fa-indent"> new-par-[type]</strong> AWWWW YEAHHHH BOYYEEE [text, heading, image, list, blockquote, youtube, feature, listing, static-listing, multicolumn, photogallery, table, blockref]<br/>
 				<br />
-				<strong>The following commands run only after other fields are filled:</strong><br />
-				<strong>ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
-				<strong>ufc-submit-cls</strong> [TRUE] Will: click submit and close tab<br />
-				
+				<strong > The following commands run only after other fields are filled:</strong><br />
+				<strong class="fa fa-floppy-o"> ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
+				<strong class="fa fa-floppy-o"> ufc-submit-cls</strong> [TRUE] Will: click submit and close tab<br />
 			</p>
-			<input id='getDemFields' type='submit' value='Get Fillable Fields' />  You'll have to see the results in the console.
 		</div>
 
 		<div id="tabs-2">
 			<table id="nodeRefList">
 				<tr>
-					<th>Media Id</th>
-					<th>Node Link</th>
-					<th>Node URL</th>
-					<th>Node Id</th>
+					<th>FileID</th>
+					<th>FileName</th>
+					<th>LinkedTitle</th>
+					<th>LinkedURL</th>
 				</tr>
 				<tr>
-					<td>test mediaId</td>
-					<td>test Node Link</td>	
-					<td>test Node URL</td>	
-					<td>test NodeID</td>
+					<td>test FileID</td>
+					<td>test FileName</td>	
+					<td>test LinkedTitle</td>	
+					<td>test LinkedURL</td>
 				</tr>
 			</table>	
-			<input id='clearNodeRefList' type='submit' value='clearNodeRefList' /> 
+			<input id='clearNodeRefList' type='submit' value='Clear Nodes Referenced by Media List' /> 
 		</div>
 
 		<div id="tabs-3">
@@ -93,18 +99,69 @@
 					<td>test related Media ID</td>		
 				</tr>
 			</table>	
-			<input id='clearLinkedMediaList' type='submit' value='clearLinkedMediaList' /> 
+			<input id='clearLinkedMediaList' type='submit' value='Clear Linked Media List' /> 
 		</div>
 
 		<div id="tabs-4">
+			<input id='getDemFields' type='submit' value='Get Fillable Fields' />  
 			<table id="FieldList">
 				<tr>
 					<th>Field Id</th>
-					<th>Query String</th>
+					<th>Field Type</th>
 				</tr>
 				<tr>
-					<td>test FieldId</td>
-					<td>test QueryString</td>	
+					<td>test Field Id</td>
+					<td>test Field Type</td>	
+				</tr>
+			</table>	
+		</div>
+
+		<div id="tabs-5">
+			<form>
+				<p>
+					<span>
+						<label for='auto-list' class='fa fa-list-ul'> Upload Task Automation URL List: </label>
+						<textarea rows="4" cols="100" id='auto-list-text' class='fa fa-list-ul'> Add URLs here</textarea>
+						<input type="button" value=" Upload"  id="auto-list-upload">  
+
+					</span>
+				</p>
+				<p>
+					<span>
+						<label for="auto-start" class='fa fa-play'></label>
+						<input type="button" value=" Start Automation Queue"  id="auto-start">  
+						<label for="auto-stop" class='fa fa-stop'></label>
+						<input type="button" value=" Stop Automation Queue" id="auto-stop">
+						<label for="auto-reset" class='fa fa-trash-o'></label>
+						<input type="button" value=" Reset Automation Queue"  id="auto-reset">
+					</span>
+				</p>
+				<p>
+					<span><em>
+						Threads to run concurrently (someday). Currently only one will run, and waut for the originating tab to close
+						<select id='sel-concurrent'>
+							<option value='1'>1</option>
+							<option value='2'>2</option>
+							<option value='3'>3</option>
+							<option value='4'>4</option>
+							<option value='5'>5</option>
+							<option value='6'>6</option>
+							<option value='7'>7</option>
+							<option value='8'>8</option>
+							<option value='9'>9</option>
+							<option value='10'>10</option>
+						</select>
+					</em></span>
+				</p>
+			</form>
+			<table id="autoListTable">
+				<tr>
+					<th>Link</th>
+					<th>Status</th>
+				</tr>
+				<tr>
+					<td>No Links</td>
+					<td><span class="fa fa-times"> No Status</span></td>	
 				</tr>
 			</table>	
 		</div>

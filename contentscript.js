@@ -10,48 +10,75 @@ jQuery.expr[':'].regex = function(elem, index, match) {
         regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
     return regex.test(jQuery(elem)[attr.method](attr.property));
 }
-var UFCData = {};
+var UFCData = [];
 UFCData.tasksToComplete = 0;
 UFCData.taskRetry=3000;
 UFCData.PGinProgress=0;
-UFCData.paragraphType=[['text','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_rich_text','paragraphs-item-type-paragraphs-sp-rich-text'],
-	['heading','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_heading','paragraphs-item-type-paragraphs-sp-heading'],
-	['image','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_image','paragraphs-item-type-paragraphs-sp-image'],
-	['list','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_list','paragraphs-item-type-paragraphs-sp-list'],
-	['blockquote','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_blockquote','paragraphs-item-type-paragraphs-sp-blockquote'],
-	['youtube','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_youtube','paragraphs-item-type-energy-paragraphs-youtube'],
-	['feature','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_ref','paragraphs-item-type-energy-paragraphs-ref'],
-	['listing','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_ref','paragraphs-item-type-energy-paragraphs-listing-ref'],
-	['static-listing','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_n_refs','paragraphs-item-type-energy-paragraphs-listing-n-refs'],
-	['multicolumn','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_multi_column','paragraphs-item-type-energy-paragraphs-multi-column'],
-	['photogallery','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_photo_gallery','paragraphs-item-type-energy-paragraphs-photo-gallery'],
-	['table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table','paragraphs-item-type-paragraphs-sp-table']]
+var taskQueue=[];
+var manifest = chrome.runtime.getManifest();
+console.log('Running '+ manifest.name +' ::: '+manifest.version); 
+//Paragraph Type	ufc-query	class	name
+UFCData.paragraphTypes=[['Accordion','accordion','paragraphs-add-more-energy-paragraphs-accordion','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_accordion'],
+['Block Reference','block-ref','paragraphs-add-more-energy-paragraphs-block-ref','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_block_ref'],
+['Blockquote','blockquote','paragraphs-add-more-paragraphs-sp-blockquote','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_blockquote'],
+['Contact Reference','contact','paragraphs-add-more-energy-paragraphs-contact','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_contact'],
+['Container','container','paragraphs-add-more-paragraphs-sp-container','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_container'],
+['Data Table','table','paragraphs-add-more-paragraphs-sp-table','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table'],
+['Featured Item','feature','paragraphs-add-more-energy-paragraphs-ref','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_ref'],
+['Formatted List (Full)','list-full','paragraphs-add-more-paragraphs-sp-list','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_list'],
+['Formatted List (Simple)','list-simple','paragraphs-add-more-paragraphs-sp-simple-list','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_simple_list'],
+['Heading','heading','paragraphs-add-more-paragraphs-sp-heading','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_heading'],
+['Image','image','paragraphs-add-more-paragraphs-sp-image','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_image'],
+['Listing (Dynamic)','listing-dyn','paragraphs-add-more-energy-paragraphs-listing-ref','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_ref'],
+['Listing (Static)','listing-sim','paragraphs-add-more-energy-paragraphs-listing-n-refs','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_n_refs'],
+['Multi-Column','multi-c','paragraphs-add-more-energy-paragraphs-multi-column','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_multi_column'],
+['Photo Gallery','photo-g','paragraphs-add-more-energy-paragraphs-photo-gallery','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_photo_gallery'],
+['Rich Text (Full)','text-full','paragraphs-add-more-energy-paragraphs-full-rich-text','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_full_rich_text'],
+['Rich Text','text','paragraphs-add-more-paragraphs-sp-rich-text','field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_rich_text'],
+['Statistic','statistic','paragraphs-add-more-energy-paragraphs-statistic','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_statistic'],
+['Tabs','tabs','paragraphs-add-more-energy-paragraphs-tabs','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_tabs'],
+['YouTube Video','youtube','paragraphs-add-more-energy-paragraphs-youtube','field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_youtube']]
+
 //$(document).load( function () {
 $( document ).ready(function() {
-    console.log( "UFC 1.24.01 at the ready:"); 
-    console.log( "UFC document.URL:  " + document.URL);//your current page
-	console.log( "UFC document.referrer:  " + document.referrer );//page you're coming from
-	for (var valuePair in $.url().param()){
-		try {	var UFCFieldType = valuePair.substring(0,7);
-			var UFCFieldID = valuePair.substring(8,valuePair.length);
-			var UFCFieldData=$.url().param(valuePair);
-			console.log('========UFC FieldType:' + UFCFieldType + '   :UFC FieldID:' + UFCFieldID + '   :Value:' + UFCFieldData);
+	try {
+	    for (var valuePair in $.url().param()){
+    		//(UFCFieldType, UFCFieldID, UFCFieldData)
+    		//console.log('UFCData.taskQueue.push([ '+valuePair.substring(0,7)+' , '+valuePair.substring(8,valuePair.length)+' , '+$.url().param(valuePair)+']);');
+    		taskQueue.push([valuePair.substring(0,7),valuePair.substring(8,valuePair.length),$.url().param(valuePair)]);
+    	}
+    	runTaskQueue();
+	} catch(err) {
+		console.log('doc ready/ add queries to task queue: '+err);
+	}
+});
+
+function runTaskQueue(){
+	try{
+		console.log('Running Task Item 1 of '+taskQueue.length);
+		if (taskQueue.length>0){
+			console.log('Running Task Item: '+taskQueue[0][0]+'   Target Field: '+taskQueue[0][1]+'   Target Data: '+taskQueue[0][2])
+			var UFCFieldType = taskQueue[0][0];
+			var UFCFieldID = taskQueue[0][1];
+			var UFCFieldData=taskQueue[0][2];
 			switch(UFCFieldType) {
 				// timestamp takes text, just get the format right
 				case 'ufc-txt':
 					//console.log('>>>>>ufc-txt:'+UFCFieldID+' >>> '+UFCFieldData);
 					$('#'+ UFCFieldID).val(UFCFieldData);
+					runNextInQueue();
 				break;
-
 				
 				case 'ufc-chk':
 					if(UFCFieldData==='TRUE'){
 						$('#'+ UFCFieldID).prop('checked',true);}
 					else {	$('#'+ UFCFieldID).prop('checked',false);}
+					runNextInQueue();
 				break;
 
 				case 'ufc-sel':
 					$('#'+ UFCFieldID + ' option[value="' + UFCFieldData + '"]').prop('selected',true);
+					runNextInQueue();
 				break;
 				
 				// multiselect: important to ADD only-!
@@ -60,28 +87,32 @@ $( document ).ready(function() {
 						//console.log('   toAddToSelections ufc-msl #' + UFCFieldID + ': ' + UFCFieldData.split(',')[toAddToSelections]);
 						$('#'+ UFCFieldID + ' option[value="' +  UFCFieldData.split(',')[toAddToSelections] + '"]').prop('selected','selected');
 					}
+					runNextInQueue();
 				break;
 								
 				//Body Text: hidden iFrame 
 				case 'ufc-bod':
 					console.log('case ufc-bod');
-					//console.log('#cke_edit-body-und-0-value:::::'+$('#cke_edit-body-und-0-value').attr("title"));
-					//console.log('#cke_edit-body-und-0-value.find.iframe:::::'+$('#cke_edit-body-und-0-value').find('iframe').contents().find("").html());
-					//$('#edit-body-und-0-format--2').html(UFCFieldData);
-					$('#cke_edit-body-und-0-value').contents().find('iframe').load(function(){
-						console.log(' body iframe loaded');
-						console.log($('#cke_edit-body-und-0-value').find('iframe').contents().html());
-						$('iframe').contents().find('body').html(UFCFieldData);
-					});
-					$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
+					//$('#cke_edit-body-und-0-value').contents().find('iframe').on('load',function(){
+						//console.log('body iframe loaded');
+						//console.log(' body iframe loaded: '+$('#cke_edit-body-und-0-value').find('iframe').contents().html());
+						//var myBodyText=$('#cke_edit-body-und-0-value').find('iframe').contents().html();
+						var myBodyText=$('#edit-body-und-0-value').html();
+						console.log('myBodyText:    '+myBodyText);
+						addNewParagraph('text-full', myBodyText);
+					//});
+					//$('#cke_contents_edit-body-und-0-value').html(UFCFieldData);//v1: now this seems to be missing..?
+					//runNextInQueue();
 				break;
-
+				
 				case 'new-par':
-					console.log('UFCData.tasksToComplete before addNewParagraph('+UFCFieldID+', '+UFCFieldData+')='+UFCData.tasksToComplete);
-					UFCData.tasksToComplete = UFCData.tasksToComplete+1;
+					//console.log('UFCData.tasksToComplete before addNewParagraph('+UFCFieldID+', '+UFCFieldData+')='+UFCData.tasksToComplete);
+					//UFCData.tasksToComplete = UFCData.tasksToComplete+1;
+					//addNewParagraph(UFCFieldID, UFCFieldData);
 					addNewParagraph(UFCFieldID, UFCFieldData);
 				break;
-								
+
+					
 				//files
 				case 'ufc-fml':// ADD FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
@@ -116,7 +147,7 @@ $( document ).ready(function() {
 					
 					var htmlstr = '<div id="copyPasta" style="position:fixed;width:700px;height:50px;z-index:9999999;background-color:#e0ffff;top:200px;left:300px;padding:20px;font-size:20px;"><p>' + UFCFieldData + '</p></div>';
 					$('body').append(htmlstr);
-
+					// SWITCH TO A MEDIA
 					$('#edit-field-download-files-und-0 > .launcher').trigger('click'); 
 
 				break;	
@@ -150,8 +181,8 @@ $( document ).ready(function() {
 						myLinkedTitle=encodeURI($(this).find('a:first').html());
 						console.log('myLinkedURL:'+myLinkedURL+'   myLinkedTitle:'+myLinkedTitle);
 						myLinkAddition='{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
-        				console.log('updtMRF-'+myLinkAddition);
-        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
+						console.log('updtMRF-'+myLinkAddition);
+						chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
 					})
 					$('#content tr:contains(paragraphs_item):first').each(function(){
 						myMatches+=1;
@@ -159,8 +190,8 @@ $( document ).ready(function() {
 						myLinkedTitle=encodeURI('paragraphs: '+$('#content tr:contains(paragraphs_item)').length);
 						console.log('myLinkedURL:'+myLinkedURL+'   myLinkedTitle:'+myLinkedTitle);
 						myLinkAddition='{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
-        				console.log('updtMRF-'+myLinkAddition);
-        				chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
+						console.log('updtMRF-'+myLinkAddition);
+						chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
 					})
 					if (UFCFieldData==='CLOSE') {
 							chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
@@ -168,27 +199,33 @@ $( document ).ready(function() {
 				break;
 
 				case 'ufc-mrn':// find all associated files related to download revisions (use from )
-					console.log('window.location.pathname.split(/)[3]='+window.location.pathname.split( '/' )[3])
+					console.log('document.URL.split(/)[5].substr(0,8)='+document.URL.split('/')[5].substr(0,8));
 					if (UFCFieldData==='fillAndKill'){
 						listFiles(UFCFieldData);
 						chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
-					} else if (window.location.pathname.split( '/' )[3] !== 'workflow') {
+					} else if (document.URL.split('/')[5].substr(0,8) !== 'workflow') {
 						console.log('relocating');
-						window.location.replace('https://'+document.domain+'/'+window.location.pathname.split( '/' )[1]+'/'+window.location.pathname.split( '/' )[2]+'/workflow?ufc-mrn='+UFCFieldData);
-					} else if (window.location.pathname.split( '/' )[3] === 'workflow') {
-						var myRevision = 'https://'+document.domain+'/node/'+window.location.pathname.split( '/' )[2]+'?ufc-mrn=fillAndKill';
+						window.location.replace(document.URL.split('/').slice(0,5).join('/')+'/workflow?ufc-mrn='+UFCFieldData);
+					} else if (document.URL.split('/')[5].substr(0,8) === 'workflow') {
+						var myRevision = document.URL.split('/').slice(0,5).join('/')+'?ufc-mrn=fillAndKill';
 						var isPublished = $('div.region.region-content fieldset:first-child div.form-item.form-type-item:first-child').html().includes('Published (published)');
 						console.log('myRevision:'+myRevision);
-						if (isPublished){
+						//if (isPublished){
 							//window.open(myRevision)
-							chrome.runtime.sendMessage({greeting:'createTab',url:myRevision,active:true},function(response){
+							chrome.runtime.sendMessage({greeting:'createTab',url:myRevision,active:false},function(response){
+								console.log('Created Tab:'+response.message);
+							});
+						/*	
+						} else {
+							console.log('unpublished has all revisions in drafts AND Archived Revisions');
+						}*/
+						$('div.region.region-content tr td:first-child a').each(function(){
+							myRevision=document.URL.split('/').slice(0,5).join('/')+'/revisions/'+$(this).html()+'?ufc-mrn=fillAndKill';
+							console.log('Draft Revision:'+myRevision);
+							chrome.runtime.sendMessage({greeting:'createTab',url:myRevision,active:false},function(response){
 								console.log('Create Tab:'+response.message);
 							});
-							
-						} else {
-							console.log('unpublished has all revisions in drafts');
-						}
-						$('div.region.region-content tr td:last-child a:first-child').each(function(){
+							/*
 							if ($(this).attr('href').split( '/' )[1] === 'node'){
 								//filter to /node/ links, and add node/1234?ufc-mrn=fillAndKill'
 								myRevision = 'https://'+document.domain+$(this).attr('href')+'?ufc-mrn=fillAndKill'
@@ -197,6 +234,7 @@ $( document ).ready(function() {
 									console.log('Create Tab:'+response.message);
 								});
 							}
+							*/
 						});
 						if ($('.pager-next').length>0){
 							window.location.replace('https://'+document.domain+$('.pager-next a').attr('href'));
@@ -211,6 +249,7 @@ $( document ).ready(function() {
 				break;
 
 				case 'ufc-trg':// trigger ID
+
 					var myOffset = $('#'+UFCFieldID ).offset();
 					console.log('Top left of my thing:'+myOffset.left + " : " + myOffset.top );
 					console.log('so imma click here x:'+(myOffset.left+($('#'+UFCFieldID ).width()/2))+ ", y: " + (myOffset.top+($('#'+UFCFieldID ).height()/2)));
@@ -228,94 +267,161 @@ $( document ).ready(function() {
 					    // None of the handlers called preventDefault.
 						//console.log("not cancelled");
 					}
-					$('#'+UFCFieldID).parent().children().each(function(){
-						console.log($(this).attr('name'));
-					});
+					runNextInQueue()
 				break;
+
+				case 'ufc-w84':// ufc-w84-fieldID=[OPEN/CLOSE] click, and then w8 4 = wait for, get it?
+					var nextFieldReady=false;
+					var targetNode = document.getElementsByTagName("body")[0];
+					// Options for the observer (which mutations to observe)
+					var config = { attributes: true, childList: true, subtree: true };
+					// Callback function to execute when mutations are observed
+					var callback = function(mutations) {
+					    mutations.forEach(function(mutation) {
+					    	try{
+					    		// OK lets not gett too clever about it.
+					    		var $myFind = $('#'+UFCFieldID);
+					    		if(($myFind.length>0 && UFCFieldData==="OPEN")||(!($myFind.length>0) && UFCFieldData==="CLOSE")){
+					    			//console.log('!!!!!!!!! FOUND #'+UFCFieldData);
+					    			if(nextFieldReady===false){
+					    				console.log('>>>>>>>>>> UFC-W84: nextFieldReady=false >>> true >>> go!');
+					    				nextFieldReady=true;
+					    				observer.disconnect();
+					    				runNextInQueue();
+					    			}
+					    		} else {
+					    			//console.log('still waiting for #'+UFCFieldData);
+					    		}
+						    }catch(err){
+						    	//console.log('mutation observer error: '+err);
+					   		}
+					    });
+					};
+					// Create an observer instance linked to the callback function
+					var observer = new MutationObserver(callback);
+					// Start observing the target node for configured mutations
+					observer.observe(targetNode, config);
+
+				break;
+
+
+				case 'ufc-mdo':// open media for edit 1: listen 2: click 3: react 4: next
+					var nextFieldReady=false;
+					var targetNode = document.getElementsByTagName("body")[0];
+					// Options for the observer (which mutations to observe)
+					var config = { attributes: true, childList: true, subtree: true };
+					// Callback function to execute when mutations are observed
+					var callback = function(mutations) {
+					    mutations.forEach(function(mutation) {
+					    	try{
+					    		// OK lets not gett too clever about it.
+					    		var $myFind = $('#'+UFCFieldData);
+					    		if($myFind.length>0){
+					    			//console.log('!!!!!!!!! FOUND #'+UFCFieldData);
+					    			if(nextFieldReady===false){
+					    				console.log('>>>>>>>>>> nextFieldReady=false >>> true >>> go!');
+					    				nextFieldReady=true;
+					    				observer.disconnect();
+					    				runNextInQueue();
+					    			}
+					    		} else {
+					    			//console.log('still waiting for #'+UFCFieldData);
+					    		}
+						    }catch(err){
+						    	console.log('mutation observer error: '+err);
+					   		}
+					    });
+					};
+					// Create an observer instance linked to the callback function
+					var observer = new MutationObserver(callback);
+					// Start observing the target node for configured mutations
+					observer.observe(targetNode, config);
+
+					// MAKE THAT CLICK EVENT
+					var event = new MouseEvent('click', {
+						'view': window,
+						'bubbles': true,
+						'cancelable': true
+					});
+					var  myMediaEditButton = document.getElementById(UFCFieldID);
+					myMediaEditButton.dispatchEvent(event);
+				break;
+
+
+
+
 				default:
 					console.log('   ' + UFCFieldType + ' is not a UFC- controlled field.');
+					runNextInQueue();
 				break;
-			}
-		} catch(err) {
-			console.log(err);
+			}//switch
+
+		} else {
+			pageClosing();
 		}
+	} catch(err) {
+		console.log('Error Running Task Item: '+taskQueue[0][0]+'   Target Field: '+taskQueue[0][1]+'   Target Data: '+taskQueue[0][2]);
+		console.log('Error: '+err);
+		runNextInQueue();
 	}
-//######### saving and closing 
-	pageClosing();
-});
+}
+
+function waitForListener(){
+	try{
+
+	} catch(err) {
+	console.log('listenForID Error: '+err);
+	}
+
+}
+
+function runNextInQueue(){
+		taskQueue.shift();
+		console.log('runNextInQueue-- still '+taskQueue.length+' more tasks left, run task queue again');
+		runTaskQueue();
+}
+
 
 function addNewParagraph (paragraphType, paragraphContent){
-	if(UFCData.PGinProgress===0){
-		UFCData.PGinProgress=UFCData.PGinProgress+1;
-		UFCData.currentParagraphType=paragraphType;
-		UFCData.currentParagraphContent=paragraphContent;
-		console.log('addNewParagraph:'+paragraphType);
-		var paragraphName = ""
-		switch(paragraphType){
-			case 'text':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_rich_text'
-			break;
-			case 'heading':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_heading'
-			break;
-			case 'image':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_image'
-			break;
-			case 'list':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_list'
-			break;
-			case 'blockquote':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_blockquote'
-			break;
-			case 'youtube':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_youtube'
-			break;
-			case 'feature':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_ref'
-			break;
-			case 'listing':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_ref'
-			break;
-			case 'static-listing':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_listing_n_refs'
-			break;
-			case 'multicolumn':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_multi_column'
-			break;
-			case 'photogallery':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_photo_gallery'
-			break;
-			case 'table':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_paragraphs_sp_table'
-			break;
-			case 'blockref':
-				paragraphName='field_body_paragraphs_add_more_add_more_bundle_energy_paragraphs_block_ref'
-			break;
+	try{
+		console.log('function addNewParagraph ('+paragraphType+', '+paragraphContent+')');
+		if(UFCData.PGinProgress===0){
+			UFCData.PGinProgress=UFCData.PGinProgress+1;
+			UFCData.currentParagraphType=paragraphType;
+			UFCData.currentParagraphContent=paragraphContent;
+			console.log('addNewParagraph:'+paragraphType);
+			var paragraphName = ""
+			for(i=0;i<UFCData.paragraphTypes.length;i++){
+				//console.log('UFCData.paragraphTypes[i][1]='+UFCData.paragraphTypes[i][1]);
+				if(UFCData.paragraphTypes[i][1]===paragraphType) {
+					console.log('paragraphType matched to UFCData.paragraphTypes[i][1]; so paragraphName='+UFCData.paragraphTypes[i][3])
+					paragraphName=UFCData.paragraphTypes[i][3]
+				}
+			}
+
+			var event = new MouseEvent('mousedown', {
+				'view': window,
+				'bubbles': true,
+				'cancelable': true
+			});
+			var myAddButton = $('input[name='+paragraphName+']').get(0);
+			myAddButton.dispatchEvent(event);
+			var myParagraphs = $("#edit-field-body-paragraphs").get(0);
+			UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length;
+			console.log(paragraphType+' starting event listener with initial UFCData.myParagraphsCount='+UFCData.myParagraphsCount);
+			myParagraphs.addEventListener('DOMSubtreeModified', myParagraphListener, false);
 		}
-		var event = new MouseEvent('mousedown', {
-			'view': window,
-			'bubbles': true,
-			'cancelable': true
-		});
-		var myAddButton = $('input[name='+paragraphName+']').get(0);
-		myAddButton.dispatchEvent(event);
-		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
-		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length;
-		console.log(paragraphType+' starting event listener with initial UFCData.myParagraphsCount='+UFCData.myParagraphsCount);
-		myParagraphs.addEventListener('DOMSubtreeModified', myParagraphListener, false);
-	} else {
-		setTimeout(function(){
-			addNewParagraph(paragraphType, paragraphContent);
-		},(300));
+	} catch(err) {
+		console.log('addNewParagraph Error: '+err);
 	}
 }
 
 function myParagraphListener(){
 	//so, every time something changes in PG table, only IF new TR added
-	//console.log("myParagraphListener triggered, paragraph count="+$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length);
+	console.log("myParagraphListener triggered, paragraph count="+$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length);
 	if(UFCData.myParagraphsCount < $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length){
 		UFCData.myParagraphsCount = $("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').length;
-		//console.log('myParagraphListener myParagraphsCount increased: '+UFCData.myParagraphsCount);
+		console.log('myParagraphListener myParagraphsCount increased: '+UFCData.myParagraphsCount);
 		fillNewParagraph(UFCData.currentParagraphType, UFCData.currentParagraphContent);
 		var myParagraphs = $("#edit-field-body-paragraphs").get(0);
 		myParagraphs.removeEventListener('DOMSubtreeModified', myParagraphListener, false);
@@ -324,14 +430,10 @@ function myParagraphListener(){
 }
 
 function fillNewParagraph(paragraphType, paragraphContent){
+		console.log("myParagraphListener triggered for "+paragraphType)
 		var myParagraph=$("#edit-field-body-paragraphs").find('tr[class*="paragraphs-item-type-"]').last();
 		switch(paragraphType){
-			case 'text':
-				UFCData.PGinProgress=UFCData.PGinProgress + 1;
-				UFCData.tasksToComplete =UFCData.tasksToComplete + 1;
-				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
-				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
-			break;
+			
 			case 'heading':
 				//name: field_para_sp_heading,field_para_energy_heading_link,Heading Text field is required.
 				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
@@ -348,10 +450,10 @@ function fillNewParagraph(paragraphType, paragraphContent){
 				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
 				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
 			break;
-			case 'youtube':
-				//[media]field_energy_youtube_caption,field_energy_youtube_attribution
-				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+			case 'blockref'://Table Data File field is required.
+				myParagraph.find('input:text[name*="field_para_block_ref"]').val('IE: Upcoming Events [bid:10771]');
 			break;
+			
 			case 'feature':
 				//field_para_energy_ref_title,field_para_energy_ref_item[target_id],Featured Item field is required. {page: 'Visual QA Testing Page (2207053)'}
 				myParagraph.find('input:text[name*="field_para_energy_ref_title"]').val(paragraphContent);
@@ -365,6 +467,7 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'static-listing':
 				//field_para_sp_heading,field_para_energy_ref_items(10),field_para_energy_ref_title,(media), heading text required, 1st item required {page: 'Visual QA Testing Page (2207053)'}
 				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+				/*
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Article (2207013)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(1).val('Visual QA Testing Download (2207025)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(2).val('Visual QA Testing Event (2207033)');
@@ -372,6 +475,7 @@ function fillNewParagraph(paragraphType, paragraphContent){
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(4).val('Visual QA Testing Download (2207025)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(5).val('Visual QA Testing Page (2207053)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(6).val('Visual QA Testing Pivot Table (2207065)');
+				*/
 			break;
 			case 'multicolumn':
 			break;
@@ -381,14 +485,29 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			break;
 			case 'table'://Table Data File field is required.
 			break;
-			case 'blockref'://Table Data File field is required.
-				myParagraph.find('input:text[name*="field_para_block_ref"]').val('IE: Upcoming Events [bid:10771]');
+			case 'text':
+				UFCData.PGinProgress=UFCData.PGinProgress + 1;
+				UFCData.tasksToComplete =UFCData.tasksToComplete + 1;
+				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
+				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
 			break;
+			case 'text-full':
+				UFCData.PGinProgress=UFCData.PGinProgress + 1;
+				UFCData.tasksToComplete =UFCData.tasksToComplete + 1;
+				//console.log('fillRichTextListener for '+ myParagraph.find('.cke_contents').eq(0).attr("id"));
+				myParagraph.get(0).addEventListener('DOMSubtreeModified', fillRichTextListener, false);
+			break;
+			case 'youtube':
+				//[media]field_energy_youtube_caption,field_energy_youtube_attribution
+				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+			break;
+			
 		}
 		//UFCData.currentParagraphType='';
 		//UFCData.currentParagraphContent='';
 		UFCData.tasksToComplete =UFCData.tasksToComplete - 1;
 		UFCData.PGinProgress=UFCData.PGinProgress - 1;
+		runNextInQueue();
 }
 
 function fillRichTextListener(){
@@ -428,8 +547,9 @@ function listFiles() {
 			myMediaLink=encodeURI($(this).attr("href"));
 			myMediaTitle=encodeURI($(this).html());
 			myLinkAddition='{"NodeRef":"'+myLinkedNode+'","MediaTitle":"'+myMediaTitle+'","MediaLink":"'+myMediaLink+'","MediaID":"'+myMediaID+'"}';
-			chrome.runtime.sendMessage({greeting : 'updtmrn', content : myLinkAddition});
-			console.log("'chrome.runtime.sendMessage({greeting : 'updtmrn', content : "+myLinkAddition+"}");
+			chrome.runtime.sendMessage({greeting : 'updtmrn', content : myLinkAddition},function(response){
+				console.log("'chrome.runtime.sendMessage({greeting : 'updtmrn', content : "+myLinkAddition+"}#### RESPONSE:"+response.message);
+			});
 		})
 	} catch(err) {
 		console.log('function listFiles()'+err);

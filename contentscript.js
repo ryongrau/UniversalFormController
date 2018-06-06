@@ -111,8 +111,8 @@ function runTaskQueue(){
 					//addNewParagraph(UFCFieldID, UFCFieldData);
 					addNewParagraph(UFCFieldID, UFCFieldData);
 				break;
-
 					
+
 				//files
 				case 'ufc-fml':// ADD FILE FROM FILE LIBRARY-- 
 					$('html, body').animate({ scrollTop: $(document).height()-$(window).height()}, 000);
@@ -157,6 +157,7 @@ function runTaskQueue(){
 					//alert(myMatches + ' - ' + UFCFieldData);
 					if(myMatches==UFCFieldData){
 						chrome.runtime.sendMessage({greeting:'killTab'},function(response){
+
 							//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 						});
 					}
@@ -177,12 +178,14 @@ function runTaskQueue(){
 					$('#content tr:contains(node)').each(function(){
 					//$('#content').find('tr :contains(node)').parent().children(':eq(0)').find('a').each(function(){
 						myMatches+=1;
+
 						myLinkedURL=encodeURI($(this).find('a:first').attr('href'));
 						myLinkedTitle=encodeURI($(this).find('a:first').html());
 						console.log('myLinkedURL:'+myLinkedURL+'   myLinkedTitle:'+myLinkedTitle);
 						myLinkAddition='{"FileID":"'+myFileID+'","FileName":"'+myFileName+'","LinkedURL":"'+myLinkedURL+'","LinkedTitle":"'+myLinkedTitle+'"}'
 						console.log('updtMRF-'+myLinkAddition);
 						chrome.runtime.sendMessage({greeting:'updtMRF', content : myLinkAddition});
+
 					})
 					$('#content tr:contains(paragraphs_item):first').each(function(){
 						myMatches+=1;
@@ -197,6 +200,7 @@ function runTaskQueue(){
 							chrome.runtime.sendMessage({greeting:'killTab'},function(response){});
 					}
 				break;
+
 
 				case 'ufc-mrn':// find all associated files related to download revisions (use from )
 					console.log('document.URL.split(/)[5].substr(0,8)='+document.URL.split('/')[5].substr(0,8));
@@ -244,10 +248,11 @@ function runTaskQueue(){
 					} else {
 						console.log ('else');
 						listFiles();
+
 					}
 					
 				break;
-
+								
 				case 'ufc-trg':// trigger ID
 
 					var myOffset = $('#'+UFCFieldID ).offset();
@@ -358,6 +363,7 @@ function runTaskQueue(){
 
 		} else {
 			pageClosing();
+
 		}
 	} catch(err) {
 		console.log('Error Running Task Item: '+taskQueue[0][0]+'   Target Field: '+taskQueue[0][1]+'   Target Data: '+taskQueue[0][2]);
@@ -467,6 +473,7 @@ function fillNewParagraph(paragraphType, paragraphContent){
 			case 'static-listing':
 				//field_para_sp_heading,field_para_energy_ref_items(10),field_para_energy_ref_title,(media), heading text required, 1st item required {page: 'Visual QA Testing Page (2207053)'}
 				myParagraph.find('input:text[name*="field_para_sp_heading"]').val(paragraphContent);
+
 				/*
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(0).val('Visual QA Testing Article (2207013)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(1).val('Visual QA Testing Download (2207025)');
@@ -476,6 +483,7 @@ function fillNewParagraph(paragraphType, paragraphContent){
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(5).val('Visual QA Testing Page (2207053)');
 				myParagraph.find('input:text[name*="field_para_energy_ref_items"]').eq(6).val('Visual QA Testing Pivot Table (2207065)');
 				*/
+
 			break;
 			case 'multicolumn':
 			break;
@@ -554,6 +562,7 @@ function listFiles() {
 	} catch(err) {
 		console.log('function listFiles()'+err);
 	}
+
 }
 
 // a hook from the popup
@@ -577,12 +586,15 @@ chrome.runtime.onMessage.addListener(
 )
 
 function pageClosing(){
-	console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	//console.log('Remaining tasks To Complete:'+UFCData.tasksToComplete);
+	//console.log("document.referrer.indexOf('ufc-submit-cls=TRUE')="+document.referrer.indexOf('ufc-submit-cls=TRUE'));
 	if(UFCData.tasksToComplete===0){
 		if ($.url().param("killTab") ==='TRUE'){
 			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
+
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
+
 		}
 
 		if ($.url().param("ufc-submit-cls") ==='TRUE'){
@@ -593,9 +605,12 @@ function pageClosing(){
 		if (document.referrer.indexOf('ufc-submit-cls=TRUE')>-1){
 			//console.log('4.) time to go away');
 			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
+
 				//console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
 			});
 		}
+
+		// ################# SAVE PUBLISH CLOSE  #############################
 
 		if ($.url().param("ufc-sav-pub-cls") ==='TRUE'){
 			console.log('1.) click save');
@@ -603,14 +618,17 @@ function pageClosing(){
 		}
 
 		if (document.referrer.indexOf('ufc-sav-pub-cls=TRUE')>-1){
-			window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+			
+			// it all spits you out to "/node/NID/revisions/RID"
+			if (document.URL.indexOf('/revisions/')>-1){
+				window.location.replace(document.URL+'/workflow/immediate%20publish?ufc-sav-pub-cls=pub')
+			} else {
+				window.location.replace(document.referrer.substr(0,document.referrer.indexOf('?')-4)+'workflow?ufc-sav-pub-cls=new')
+			} 
 		}
 
-		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
-			console.log('3 click update state');
-			$('#edit-submit').trigger('click');
-		}
 
+		// edit click >> bypassing direct re publish revision now, I believe..
 		if ($.url().param("ufc-sav-pub-cls") ==='new'){
 			console.log('2 1/2) pub new node');
 
@@ -620,13 +638,22 @@ function pageClosing(){
 			});
 		}
 
+
+		if ($.url().param("ufc-sav-pub-cls") ==='pub'){
+			console.log('3 click update state');
+			$('#edit-submit').trigger('click');
+		}
+
 		if (document.referrer.indexOf('ufc-sav-pub-cls=pub')>-1){
 			//console.log('4.) time to go away');
 			chrome.runtime.sendMessage({greeting:'killTab'},function(response){
 				console.log('ufc-autopub sendMessage response:'+response.message+' sender tab id: ' + response.senderTabId);
+
 			});
 		}
-		console.log('pageClosing job done.');
+
+
+		console.log('UFC tasks completed.');
 	}else{
 		//console.log('setTimeout(pageClosing(),(2000));');
 		setTimeout(function(){pageClosing();},(3000));

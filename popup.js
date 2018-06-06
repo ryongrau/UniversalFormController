@@ -1,10 +1,12 @@
 $( document ).ready(function() {
 	console.log('popup.js active');
 	try{
+
 		$('#popup-header').append(' '+chrome.app.getDetails().version);
 	} catch(err){
 		console.log(err);
 	}
+
 
 	try{
 		var tabCount =0;
@@ -207,3 +209,4 @@ function updateAutomationList() {
 		console.log('updateAutomationList error: '+err);
 	}
 }
+

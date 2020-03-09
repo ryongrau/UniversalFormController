@@ -23,9 +23,9 @@
       - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
      -->
  
-<script src="jquery-1.10.2.min.js"></script>
-<script src="jquery-ui.1.11.4.min.js"></script>  
-<script src="popup.js"></script>
+	<script src="jquery-1.10.2.min.js"></script>
+	<script src="jquery-ui.1.11.4.min.js"></script>  
+	<script src="popup.js"></script>
   
 </head>  
 <body>
@@ -58,7 +58,40 @@
 				<strong class="fa fa-file-o"> ufc-mrn</strong> [OPEN/CLOSE] Populates UFC "Media Referenced by Node" tab with all associated files within download revisions. Must use from node/*/revisions or node/*/workflow. Selection determines what happens to tab @ end<br />
 				<strong class="fa fa-file-o"> ufc-mrf</strong> [OPEN/CLOSE] List nodes in 'Nodes Referenceing Media' table that reference the file, only woks  on File Usage (/file/[file_Id]/usage) <br/>
 				<strong class="fa fa-mouse-pointer"> ufc-trg</strong> [Triggered Event] Trigger Event (i.e. 'click') by node id<br/>
-				<strong class="fa fa-indent"> new-par-[type]</strong> AWWWW YEAHHHH BOYYEEE [text, heading, image, list, blockquote, youtube, feature, listing, static-listing, multicolumn, photogallery, table, blockref]<br/>
+				<strong class="fa fa-indent"> new-par</strong> Add Paragraphs andf fill fields with the following code in querysting:<br/>
+				<ul>
+					<li>single pg/ default field: [paragraph-type]:[value] IE ?new-par-1=heading:My Heading Text</li>
+					<li>single pg/ multiple fields: {"[paragraph-type]":{"[field]":"[field value]","[field]":"[field value]"}}</li>
+					<li>multiple pg/ default field: {"[paragraph-type]":"[value]","[paragraph-type]":"[value]"}</li>
+					<li>multiple pg/ multiple fields: {"[paragraph-type]":{"[field]":"[field value]","[field]":"[field value]"},"[paragraph-type]":{"[field]":"[field value]","[field]":"[field value]"}}</li>
+
+				</ul>
+					<table>
+						<tr><th>Paragraph type</th><th>{'type':'example'},</th><th>'fields':{'field1':'value1','field2':'value2'}</th></tr>
+						<tr><td>Accordion</td><td>accordion</td><td>(INPUT:text - Accordion Title):<b>accordion-title* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Blockquote</td><td>block-quo</td><td>(TEXTAREA:rich - Quote Text):<b>quote-text* DEFAULT FIELD *</b><br />(INPUT:text - Name of Person Cited):<b>name-of-person-cited</b><br />(INPUT:text - Title of Person Cited):<b>title-of-person-cited</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(INPUT:checkbox - Make this Shareable):<b>make-this-shareable</b><br />(INPUT:text - Shared Quote):<b>shared-quote</b><br />(TEXTAREA - Shared Summary):<b>shared-summary</b></td></tr>
+						<tr><td>Block-Reference</td><td>block-ref</td><td>(SELECT - Layout Style):<b>layout-style</b><br />(INPUT:text - Block *):<b>block* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Contact-Reference</td><td>contact</td><td>(INPUT:text - Heading Text):<b>heading-text</b><br />(INPUT:text - CONTACT):<b>contact* DEFAULT FIELD *</b><br />(SELECT - Layout Style):<b>layout-style</b></td></tr>
+						<tr><td>Container</td><td>container</td><td></td></tr>
+						<tr><td>Data-Table</td><td>table</td><td>(SELECT - Display):<b>display* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Email-Subscription-Form</td><td>email</td><td>(INPUT:text - Heading Text):<b>heading-text* DEFAULT FIELD *</b><br />(TEXTAREA - Description):<b>description</b><br />(SELECT - Subscription Type *):<b>subscription-type</b><br />(TEXTAREA - Mailchimp Form):<b>mailchimp-form</b><br />(INPUT:text - Account ID):<b>account-id</b><br />(INPUT:text - Topic ID):<b>topic-id</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(SELECT - Color Scheme):<b>color-scheme</b></td></tr>
+						<tr><td>Featured-Item</td><td>featured</td><td>(INPUT:text - Featured Item *):<b>featured-item* DEFAULT FIELD *</b><br />(INPUT:text - Title Override):<b>title-override</b><br />(TEXTAREA:rich - Summary Override):<b>summary-override</b><br />(INPUT:text - UPLOAD):<b>upload</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(SELECT - Color Scheme):<b>color-scheme</b><br />(INPUT:checkbox - Make this Shareable):<b>make-this-shareable</b><br />(INPUT:text - Shared Title):<b>shared-title</b><br />(TEXTAREA - Shared Summary):<b>shared-summary</b></td></tr>
+						<tr><td>Formatted-List-(Full)</td><td>list-full</td><td>(SELECT - List Style):<b>list-style</b></td></tr>
+						<tr><td>Formatted-List-(Simple)</td><td>list</td><td>(TEXTAREA:rich - List):<b>list* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Heading</td><td>heading</td><td>(INPUT:text - Heading Text):<b>heading-text* DEFAULT FIELD *</b><br />(SELECT - Heading Style):<b>heading-style</b><br />(INPUT:text - Heading Link):<b>heading-link</b><br />(INPUT:text - Anchor Title):<b>anchor-title</b></td></tr>
+						<tr><td>Image</td><td>image</td><td>(INPUT:text - UPLOAD):<b>upload</b><br />(TEXTAREA:rich - Caption Text Override):<b>caption-text-override* DEFAULT FIELD *</b><br />(INPUT:text - Attribution Text Override):<b>attribution-text-override</b><br />(INPUT:text - Alt Text Override):<b>alt-text-override</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(INPUT:text - UPLOAD):<b>upload</b><br />(INPUT:checkbox - Open URL in a New Window):<b>open-url-in-a-new-window</b></td></tr>
+						<tr><td>Listing-(Dynamic)</td><td>listing-dynamic</td><td>(SELECT - Heading Style):<b>heading-style</b><br />(SELECT - List Orientation):<b>list-orientation</b><br />(SELECT - List Style):<b>list-style</b><br />(INPUT:text - Heading Text *):<b>heading-text</b><br />(INPUT:text - Listing *):<b>listing* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Listing-(Static)</td><td>listing-static</td><td>(INPUT:text - Heading Text *):<b>heading-text</b><br />(SELECT - Heading Style):<b>heading-style</b><br />(SELECT - List Orientation):<b>list-orientation</b><br />(SELECT - List Style):<b>list-style</b><br />(INPUT:text - ITEM):<b>item* DEFAULT FIELD *</b><br />(SELECT - How many to add):<b>how-many-to-add</b></td></tr>
+						<tr><td>Multi-Column</td><td>multi-column</td><td>(SELECT - Layout Style):<b>layout-style* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Photo-Gallery</td><td>photo-gallery</td><td>(INPUT:text - Photo Gallery *):<b>photo-gallery* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Podcast</td><td>podcast</td><td>(INPUT:text - Title Override):<b>title-override</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(INPUT:text - Podcast Item *):<b>podcast-item* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Rich-Text</td><td>text</td><td>(TEXTAREA:rich - Rich Text):<b>rich-text* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Rich-Text-(Full)</td><td>text-full</td><td>(TEXTAREA:rich - Full Rich Text):<b>full-rich-text* DEFAULT FIELD *</b></td></tr>
+						<tr><td>Social-Media-Post</td><td>social</td><td>(INPUT:text - URL):<b>url* DEFAULT FIELD *</b><br />(SELECT - Layout Style):<b>layout-style</b></td></tr>
+						<tr><td>Statistic</td><td>statistic</td><td>(INPUT:text - Statistic *):<b>statistic* DEFAULT FIELD *</b><br />(INPUT:text - Summary):<b>summary</b><br />(INPUT:text - Related Item):<b>related-item</b><br />(SELECT - Layout Style):<b>layout-style</b><br />(SELECT - Color Scheme):<b>color-scheme</b><br />(INPUT:checkbox - Make this Shareable):<b>make-this-shareable</b><br />(INPUT:text - Shared Title):<b>shared-title</b><br />(TEXTAREA - Shared Summary):<b>shared-summary</b></td></tr>
+						<tr><td>Tabs</td><td>tabs</td><td></td></tr>
+						<tr><td>Video</td><td>video</td><td>(INPUT:text - Video):<b>video</b><br />(TEXTAREA:rich - Caption):<b>caption* DEFAULT FIELD *</b><br />(INPUT:text - Attribution):<b>attribution</b><br />(SELECT - Layout Style):<b>layout-style</b></td></tr>
+					</table><br/>
 				<br />
 				<strong > The following commands run only after other fields are filled:</strong><br />
 				<strong class="fa fa-floppy-o"> ufc-sav-pub-cls</strong> [TRUE] Will: save, publish, and close tab<br />
@@ -137,8 +170,7 @@
 					</span>
 				</p>
 				<p>
-					<span><em>
-						Threads to run concurrently (someday). Currently only one will run, and waut for the originating tab to close
+					<span>
 						<select id='sel-concurrent'>
 							<option value='1'>1</option>
 							<option value='2'>2</option>
@@ -151,7 +183,9 @@
 							<option value='9'>9</option>
 							<option value='10'>10</option>
 						</select>
-					</em></span>
+						<label for='sel-concurrent'> Select number of Tabs to run concurrently
+						<label>	
+					</span>
 				</p>
 			</form>
 			<table id="autoListTable">

@@ -122,20 +122,24 @@ $( document ).ready(function() {
 			//var numToQueue=urlItems.length;
 			console.log( 'auto-list-upload Number of Items to upload:' + urlItems.length );
 			for(i=0; i<urlItems.length; i++){
+				/*
 				if(i===0){
 					autoListUpload='{"Link" : "' + urlItems[i] + '","Status" : "New"}';
 				} else {
 					autoListUpload=autoListUpload + ',{"Link" : "' + urlItems[i] + '","Status" : "New"}';
 				}
+				*/
+				autoListUpload='{"Link" : "' + urlItems[i] + '","Status" : "New"}';
+				chrome.runtime.sendMessage(
+					{greeting : "auto-list-upload", content : autoListUpload},
+					function(response) {
+						console.log('#auto-list-upload Background? returned:  ' + response.message);
+					}
+				);
 			}
-			console.log('auto-list-upload autoListUpload:'+autoListUpload);
-			chrome.runtime.sendMessage(
-				{greeting : "auto-list-upload", content : autoListUpload},
-				function(response) {
-					updateAutomationList();
-					console.log('#auto-list-upload Background? returned:  ' + response.message);
-				}
-			);
+			updateAutomationList();
+
+			
 		});
 
 		$('#auto-start').click(function(){
@@ -171,7 +175,8 @@ $( document ).ready(function() {
 		});
 
 	    chrome.storage.onChanged.addListener(function(changes, nameSpace) {
-	    	console.log('popup.js listener: storage changed');
+			console.log('popup.js listener: storage changed');
+			updateAutomationList();
 	    });
 
 	} catch(err) {
